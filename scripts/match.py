@@ -43,9 +43,7 @@ def alias_map(aliases: dict) -> dict[str, list]:
 
 def classify(keyword: str, aliases: dict, terms: set[str]) -> str:
     n = norm(keyword)
-    mapped = alias_map(aliases).get(n)
-    if mapped == []:
-        return "missing"
+    mapped = alias_map(aliases).get(n) or None
     if phrase_in_terms(keyword, terms):
         if mapped:
             canonical = [norm(x) for x in mapped]

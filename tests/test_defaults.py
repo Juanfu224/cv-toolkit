@@ -40,6 +40,21 @@ class DefaultCvTests(unittest.TestCase):
             exp = cv.get("experiencia") or []
             self.assertTrue(exp[0].get("actual"))
 
+    def test_github_opcional_no_es_error(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            from common import load_yaml
+
+            base = write_vault(root)
+            perfil = load_yaml(base / "perfil.yaml")
+            perfil["contacto"]["github"] = "PENDIENTE"
+            from common import dump_yaml
+
+            dump_yaml(base / "perfil.yaml", perfil)
+            plantillas = root / "plantillas"
+            scaffold(base, plantillas)
+            self.assertEqual(validate(base, plantillas), 0)
+
 
 if __name__ == "__main__":
     unittest.main()

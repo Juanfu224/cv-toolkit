@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from basename import pascal_nombre, send_basename  # noqa: E402
+from common import contact_links  # noqa: E402
 from tablero import ESTADOS, list_rows, upsert  # noqa: E402
 
 
@@ -19,6 +20,18 @@ class BasenameTests(unittest.TestCase):
     def test_send_basename(self) -> None:
         name = send_basename("Ana Pérez", "Desarrollador web", "Acme Corp")
         self.assertEqual(name, "CV_AnaPerez_Desarrollador_web_Acme_Corp")
+
+
+class ContactLinksTests(unittest.TestCase):
+    def test_omite_pendiente_y_vacios(self) -> None:
+        self.assertEqual(
+            contact_links({"linkedin": "PENDIENTE", "github": ""}),
+            [],
+        )
+        self.assertEqual(
+            contact_links({"linkedin": "https://linkedin.com/in/a", "github": None}),
+            ["https://linkedin.com/in/a"],
+        )
 
 
 class TableroTests(unittest.TestCase):

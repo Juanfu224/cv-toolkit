@@ -14,10 +14,13 @@
       · {{ cv.contacto.email }}
       · {{ cv.contacto.ciudad }}, {{ cv.contacto.pais }}
     </p>
+    {% if contact_links %}
     <p class="contact links">
-      <a href="{{ cv.contacto.linkedin }}">{{ cv.contacto.linkedin }}</a><br>
-      <a href="{{ cv.contacto.github }}">{{ cv.contacto.github }}</a>
+      {% for url in contact_links %}
+      <a href="{{ url }}">{{ url }}</a>{% if not loop.last %}<br>{% endif %}
+      {% endfor %}
     </p>
+    {% endif %}
 
     {% for seccion in cv.secciones %}
       {% if seccion == "perfil" %}

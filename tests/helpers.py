@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import shutil
 import sys
 from pathlib import Path
 
@@ -164,10 +163,3 @@ def write_vault(root: Path, **overrides) -> Path:
     for name, data in files.items():
         dump_yaml(base / name, data)
     return base
-
-
-def copy_render_templates(dest: Path) -> None:
-    src = ROOT / "plantillas"
-    dest.mkdir(parents=True, exist_ok=True)
-    for name in ("cv.html.j2", "cv.css", "respuestas.md.j2"):
-        shutil.copy2(src / name, dest / name)

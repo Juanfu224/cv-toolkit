@@ -8,10 +8,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from basename import send_basename
-from common import load_yaml
-from familias import familia_ids
+from common import is_placeholder, load_yaml
+from familias import default_cv_path, familia_ids
 from paths import BASE, CANDIDATURAS, CV_DIR, PLANTILLAS, ROOT, TABLERO
-from validate_base import is_placeholder, validate
+from validate_base import validate
 
 PY = sys.executable
 SCRIPTS = Path(__file__).resolve().parent
@@ -28,7 +28,7 @@ def cmd_validate(_args: argparse.Namespace) -> int:
 
 
 def _familia_cv(familia: str) -> Path:
-    path = PLANTILLAS / f"cv_default_{familia}.yaml"
+    path = default_cv_path(PLANTILLAS, familia)
     if not path.exists():
         known = ", ".join(p.stem.replace("cv_default_", "") for p in PLANTILLAS.glob("cv_default_*.yaml"))
         raise SystemExit(

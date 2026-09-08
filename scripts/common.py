@@ -60,3 +60,28 @@ def phrase_in_terms(phrase: str, terms: set[str]) -> bool:
 
 def phrase_in_text(phrase: str, text: str) -> bool:
     return contains_seq(tokens(text), tokens(phrase))
+
+
+PLACEHOLDERS = {"", "pendiente", "null", "none"}
+
+
+def is_placeholder(value) -> bool:
+    if value is None:
+        return True
+    return str(value).strip().lower() in PLACEHOLDERS
+
+
+def live_url(value) -> str | None:
+    if is_placeholder(value):
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def contact_links(contacto: dict | None) -> list[str]:
+    out: list[str] = []
+    for key in ("linkedin", "github"):
+        url = live_url((contacto or {}).get(key))
+        if url:
+            out.append(url)
+    return out

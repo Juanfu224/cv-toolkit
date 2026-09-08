@@ -8,7 +8,7 @@ from jinja2 import Environment, FileSystemLoader
 from weasyprint import CSS, HTML
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import load_yaml
+from common import contact_links, load_yaml
 from paths import BASE, PLANTILLAS
 
 
@@ -61,10 +61,10 @@ def to_markdown(cv: dict) -> str:
         f"## {cv['headline']}",
         "",
         f"{c['telefono']} · {c['email']} · {c['ciudad']}, {c['pais']}",
-        c["linkedin"],
-        c["github"],
-        "",
     ]
+    for url in contact_links(c):
+        lines.append(url)
+    lines.append("")
     for seccion in cv.get("secciones") or []:
         if seccion == "perfil":
             lines += ["## Perfil profesional", "", cv.get("perfil", ""), ""]
@@ -153,14 +153,14 @@ def to_docx(cv: dict, dest: Path) -> None:
     p.paragraph_format.space_after = Pt(1)
     run = p.add_run(f"{c['telefono']} · {c['email']} · {c['ciudad']}, {c['pais']}")
     set_run_font(run, 9.5)
-    p = doc.add_paragraph()
-    p.paragraph_format.space_after = Pt(1)
-    run = p.add_run(c["linkedin"])
-    set_run_font(run, 9)
-    p = doc.add_paragraph()
-    p.paragraph_format.space_after = Pt(8)
-    run = p.add_run(c["github"])
-    set_run_font(run, 9)
+    urls = contact_links(c)
+    for i, url in enumerate(urls):
+        p = doc.add_paragraph()
+        p.paragraph_format.space_after = Pt(8) if i == len(urls) - 1 else Pt(1)
+        run = p.add_run(url)
+        set_run_font(run, 9)
+    if not urls:
+        p.paragraph_format.space_after = Pt(8)
 
     for seccion in cv.get("secciones") or []:
         if seccion == "perfil":
@@ -233,6 +233,7 @@ def to_pdf(cv: dict, dest: Path) -> None:
         css_href=css_path.as_uri(),
         idiomas_linea=idiomas_linea(cv),
         certs_linea=certs_linea(cv),
+        contact_links=contact_links(cv.get("contacto") or {}),
     )
     dest.parent.mkdir(parents=True, exist_ok=True)
     HTML(string=html, base_url=str(PLANTILLAS)).write_pdf(

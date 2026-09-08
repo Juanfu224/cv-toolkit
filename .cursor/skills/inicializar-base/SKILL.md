@@ -44,7 +44,7 @@ Si el origen no lo deja claro, pregunta antes de escribir:
 - Banda salarial bruta anual por familia
 - Preaviso en días
 - Títulos que **sí** puede defender (nunca Senior / Arquitecto / Lead / Manager si no está en el origen)
-- LinkedIn y GitHub en URL completa (nunca bit.ly)
+- LinkedIn y GitHub opcionales; si existen, URL completa (nunca bit.ly)
 
 Campos dudosos: lista `pendiente` o `NECESITA_CONFIRMACION`. No rellenes con un valor inventado.
 

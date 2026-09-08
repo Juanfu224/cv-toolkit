@@ -70,6 +70,21 @@ listo_para_enviar: false
 formato_envio: pdf | docx
 ```
 
+## familias.yaml (vault)
+
+```yaml
+familias:
+  - id: string
+    nombre: string
+    incluye_proyectos: bool
+    salario:
+      min: int
+      max: int
+    titulos_tipicos: [string]
+```
+
+LinkedIn y GitHub en `perfil.contacto` son opcionales.
+
 ## respuestas.md
 
 Por pregunta: enunciado, respuesta lista para pegar, recuento vs límite, fuente (`suggest_salary.py` / `constraints.yaml` / `evidencia_id`), y `NECESITA_CONFIRMACION` si falta el hecho.

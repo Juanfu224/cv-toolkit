@@ -56,6 +56,11 @@ class TokenMatchTests(unittest.TestCase):
         aliases = {"aliases": {"itil": []}}
         self.assertEqual(classify("itil", aliases, terms), "missing")
 
+    def test_empty_alias_does_not_hide_vault_skill(self) -> None:
+        terms = {"kubernetes"}
+        aliases = {"aliases": {"kubernetes": [], "k8s": []}}
+        self.assertEqual(classify("Kubernetes", aliases, terms), "have")
+
 
 class VeredictoTests(unittest.TestCase):
     def setUp(self) -> None:

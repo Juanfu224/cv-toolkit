@@ -5,20 +5,14 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import load_yaml
+from common import is_placeholder, load_yaml
 from familias import load_familias
 from paths import BASE, PLANTILLAS
 
 REQUIRED_PERFIL = ["nombre", "contacto", "experiencia", "educacion"]
-REQUIRED_CONTACTO = ["telefono", "email", "ciudad", "pais", "linkedin", "github"]
+REQUIRED_CONTACTO = ["telefono", "email", "ciudad", "pais"]
+OPTIONAL_CONTACTO = ["linkedin", "github"]
 NIVELES = {"diario", "proyecto", "formativo"}
-PLACEHOLDERS = {"", "pendiente", "null", "none"}
-
-
-def is_placeholder(value) -> bool:
-    if value is None:
-        return True
-    return str(value).strip().lower() in PLACEHOLDERS
 
 
 def load_from(base: Path, name: str) -> dict:
@@ -64,6 +58,12 @@ def validate(base: Path | None = None, plantillas: Path | None = None) -> int:
         if is_placeholder(contacto.get(key)):
             errors.append(f"perfil.yaml: falta contacto.{key}")
         elif "bit.ly" in str(contacto.get(key)):
+            errors.append(f"perfil.yaml: contacto.{key} usa acortador bit.ly")
+    for key in OPTIONAL_CONTACTO:
+        val = contacto.get(key)
+        if is_placeholder(val):
+            warnings.append(f"perfil.yaml: contacto.{key} vacío (opcional)")
+        elif "bit.ly" in str(val):
             errors.append(f"perfil.yaml: contacto.{key} usa acortador bit.ly")
 
     if is_placeholder(perfil.get("nombre")):
