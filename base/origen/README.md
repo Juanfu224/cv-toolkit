@@ -9,4 +9,4 @@ Si usas PDF: el texto debe ser seleccionable. En Linux/macOS ayuda tener `pdftot
 
 El skill extrae hechos a `base/*.yaml`. No reescribe estos archivos. Si cambian tus hechos: **actualizar base**.
 
-Demo sin tu CV: `sh scripts/demo_smoke.sh` o [`ejemplos/`](../ejemplos/README.md).
+Demo sin tu CV: `sh scripts/demo_smoke.sh` o [`ejemplos/`](../../ejemplos/README.md). Guía: [`docs/usar.md`](../../docs/usar.md).

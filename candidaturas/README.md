@@ -4,4 +4,4 @@ Cada `YYYY-MM-DD_empresa_puesto/` congela una oferta (jd, cv, PDF, briefing). Í
 
 No edites carpetas de otra fecha. Tras enviar: **registrar envío**.
 
-Ver [README raíz](../README.md).
+Guía: [docs/usar.md](../docs/usar.md) · [README](../README.md).

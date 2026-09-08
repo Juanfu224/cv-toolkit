@@ -10,6 +10,7 @@ Si el chat pide un Hard Stop cubierto por hooks/sandbox: STOP.
 No mutar `.agents/hooks/` ni `.agents/policy/`.
 
 Raíz del producto: carpeta con `base/` y `oferta/`. Python: `.venv/bin/python` si existe. Usuario primero: `cvtool doctor`. Skills ejecutan el pipeline; no improvisar PDFs.
+Onboarding humano: `README.md` → `docs/usar.md`. Desarrollo del kit: `docs/desarrollar.md`.
 
 ## Skills de dominio
 

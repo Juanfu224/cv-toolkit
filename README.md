@@ -15,18 +15,7 @@ python3 -m venv .venv
 .venv/bin/python scripts/cvtool.py doctor
 ```
 
-WeasyPrint (si `doctor` falla en weasyprint):
-
-```bash
-# Fedora
-sudo dnf install pango cairo gdk-pixbuf2 gcc python3-devel
-# Debian / Ubuntu
-sudo apt install libpango-1.0-0 libcairo2 libgdk-pixbuf-2.0-0 gcc python3-dev
-# macOS
-brew install pango cairo gdk-pixbuf
-```
-
-PDF como origen del CV: instala `pdftotext` (poppler) si usas `curriculum.pdf` en lugar de `.md`.
+Si `doctor` falla en PDF / WeasyPrint → [Instalación](docs/usar.md#instalación).
 
 1. Copia tu CV a [`base/origen/curriculum.md`](base/origen/curriculum.md) (o PDF con texto seleccionable).
 2. En tu agente: **inicializa mi base**.
@@ -34,30 +23,7 @@ PDF como origen del CV: instala `pdftotext` (poppler) si usas `curriculum.pdf` e
 4. Envía tú el PDF/DOCX de `cv/` o `candidaturas/…`.
 5. Di **registrar envío**.
 
-¿Sin CV a mano? Corre el smoke sin LLM o usa [`ejemplos/`](ejemplos/README.md):
-
-```bash
-sh scripts/demo_smoke.sh
-```
-
-
-## Con cualquier agente
-
-Abre este repo en Cursor, Claude Code, Codex u otro runtime que lea [`AGENTS.md`](AGENTS.md) y skills. El contrato no depende de un IDE:
-
-| Artefacto | Rol |
-|---|---|
-| [`AGENTS.md`](AGENTS.md) | Router (qué skill cargar) |
-| [`.agents/skills/`](.agents/skills/) | Recetas de producto (Agent Skills) |
-| [`SPEC.md`](SPEC.md) | Contrato de dominio |
-| [`SHIELD.md`](SHIELD.md) | Hard stops / PII / no autoenviar |
-| [`CLAUDE.md`](CLAUDE.md) | Puntero `@AGENTS.md` |
-
-**Sin Cursor / Claude (Codex, ChatGPT, otro):** abre [`AGENTS.md`](AGENTS.md), elige la frase de la tabla y **lee/pega** el archivo `.agents/skills/<nombre>/SKILL.md` en el chat. No esperes que el IDE cargue skills solo.
-
-Cursor y Claude descubren las mismas skills vía symlink a `.agents/skills/`. En Windows: `git config core.symlinks true` + Developer Mode, o clona donde Git respete symlinks.
-
-Skills `epic-workflow` y `shield-security-gate` son para **desarrollar el kit**, no para candidaturas diarias.
+¿Sin CV a mano? `sh scripts/demo_smoke.sh` o [`ejemplos/`](ejemplos/README.md).
 
 
 ## Frases al agente
@@ -68,8 +34,6 @@ Skills `epic-workflow` y `shield-security-gate` son para **desarrollar el kit**,
 | Oferta en `oferta/` | **genera candidatura** |
 | Ya enviaste | **registrar envío** |
 | Cambió un hecho | **actualizar base** |
-
-Si el veredicto es `no_aplicar`, el agente para. Si tú fuerzas: `cvtool match … --forzar` solo pone `forzar: true` (HITL); **no cambia** `resultado`. El agente sigue el pipeline pese a `no_aplicar`.
 
 
 ## Qué obtienes
@@ -82,48 +46,10 @@ Si el veredicto es `no_aplicar`, el agente para. Si tú fuerzas: `cvtool match �
 | `candidaturas/YYYY-MM-DD_…/` | Pack congelado + briefing |
 | `candidaturas/tablero.yaml` | Seguimiento |
 
-El PDF no sustituye el perfil de InfoJobs u otros portales.
 
+## Más
 
-## ATS y límites
-
-- Una columna, texto seleccionable, contacto en el cuerpo, PDF + DOCX.
-- Hechos solo del vault. `no_aplicar` si falta un `must_have`, T1 bajo, seniority en knockouts, presencial fuera de zona sin traslado, o certs ausentes.
-
-
-## Carpetas
-
-`base/` hechos · `oferta/` buzón · `cv/` última generación · `candidaturas/` historial · `plantillas/` ATS · `ejemplos/` demo · `scripts/cvtool.py` CLI · `.agents/` gobernanza y skills.
-
-
-## CLI avanzada
-
-```bash
-.venv/bin/python scripts/cvtool.py doctor
-.venv/bin/python scripts/cvtool.py status
-.venv/bin/python scripts/cvtool.py scaffold
-.venv/bin/python scripts/cvtool.py render --familia <id>
-.venv/bin/python scripts/cvtool.py verify
-.venv/bin/python scripts/cvtool.py tablero list
-.venv/bin/python scripts/cvtool.py test
-sh scripts/demo_smoke.sh
-```
-
-Resto: `cvtool -h` (`match`, `validate-jd`, `copy`, `salary`, `respuestas`, `basename`, `init`, …).
-
-Antes del match: `cvtool validate-jd path/jd.yaml`. Tras HITL en `no_aplicar`: `cvtool match … --forzar` (marca HITL; no flip del veredicto).
-
-`render --familia` pisa `cv/` con el default. El PDF de una oferta vive en `candidaturas/<slug>/`.
-
-
-## Si algo falla
-
-| Síntoma | Qué hacer |
-|---|---|
-| WeasyPrint / Pango | Libs del SO arriba + `cvtool doctor` |
-| PDF origen sin texto | Instala `pdftotext` o usa `curriculum.md` |
-| Vault vacío | CV en `base/origen/` → **inicializa mi base** |
-| `no_aplicar` | Lee `veredicto.yaml`; fuerza solo si aceptas el gap (`--forzar`) |
-| PDF > 1 página | Recorta `cv.yaml` y vuelve a renderizar |
-
-Agente: [`AGENTS.md`](AGENTS.md). Gobernanza: [`SHIELD.md`](SHIELD.md) · [`SPEC.md`](SPEC.md).
+- [Guía de uso](docs/usar.md) — instalación, bucle diario, veredicto, envío, CLI, FAQ
+- [Ejemplos](ejemplos/README.md) — demo sin tu CV
+- [AGENTS.md](AGENTS.md) — router del agente / skills
+- [Desarrollar el kit](docs/desarrollar.md) — tests, SPEC, SHIELD

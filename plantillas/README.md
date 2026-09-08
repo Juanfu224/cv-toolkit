@@ -10,4 +10,4 @@
 
 Tras scaffold: `cv_default_<familia>.yaml`. No edites HTML/CSS salvo el motor ATS.
 
-Ver [README raíz](../README.md).
+Guía: [docs/usar.md](../docs/usar.md) · [README](../README.md).

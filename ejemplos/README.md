@@ -1,6 +1,6 @@
 # Ejemplos
 
-Datos **ficticios** para probar el kit sin meter tu CV.
+Datos **ficticios** para probar el kit sin meter tu CV. Guía completa: [docs/usar.md](../docs/usar.md).
 
 ## Smoke automático (recomendado)
 

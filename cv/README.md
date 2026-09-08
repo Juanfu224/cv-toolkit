@@ -4,4 +4,4 @@
 
 Se pisa en cada **genera candidatura**. No commitees PDFs. Tras enviar: **registrar envío**.
 
-Ver [README raíz](../README.md).
+Guía: [docs/usar.md](../docs/usar.md) · [README](../README.md).
