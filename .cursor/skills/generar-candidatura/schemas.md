@@ -87,7 +87,7 @@ LinkedIn y GitHub en `perfil.contacto` son opcionales.
 
 ## respuestas.md
 
-Por pregunta: enunciado, respuesta lista para pegar, recuento vs límite, fuente (`suggest_salary.py` / `constraints.yaml` / `evidencia_id`), y `NECESITA_CONFIRMACION` si falta el hecho.
+Por pregunta: enunciado, respuesta lista para pegar, recuento vs límite, fuente (`cvtool salary` / `constraints.yaml` / `evidencia_id`), y `NECESITA_CONFIRMACION` si falta el hecho. Forma: `plantillas/respuestas.md.j2`.
 
 ## empresa.md
 

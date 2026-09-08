@@ -1,6 +1,6 @@
 # Revisor adversario
 
-Busca un motivo para descartar. Si hay objeción grave, corrige solo ese bloque de `cv.yaml` y vuelve a `match.py` + `verify_pdf.py`. Si el score T1 no sube, descarta el cambio.
+Busca un motivo para descartar. Si hay objeción grave, corrige solo ese bloque de `cv.yaml` y vuelve a `cvtool match` + `cvtool verify`. Si el score T1 no sube, descarta el cambio.
 
 ## Objeciones
 

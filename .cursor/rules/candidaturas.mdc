@@ -9,7 +9,7 @@ alwaysApply: true
 - No editar `base/` ni `base/origen/` salvo **inicializa mi base** o **actualizar base**.
 - Vault vacío (`PENDIENTE`): seguir `.cursor/skills/inicializar-base/SKILL.md`.
 - No pisar `candidaturas/` de otra fecha. `oferta/` es el buzón; `cv/` es la última generación.
-- Al adaptar una oferta, seguir `.cursor/skills/generar-candidatura/SKILL.md` (parse → match.py → veredicto → plan → cv.yaml → render → verify_pdf.py).
+- Al adaptar una oferta, seguir `.cursor/skills/generar-candidatura/SKILL.md` (parse → `cvtool match` → veredicto → plan → cv.yaml → render → `cvtool verify`).
 - Si `veredicto` es `no_aplicar`, parar salvo que el usuario fuerce.
 - Headline defendible; PDF de una columna; URLs completas; skills 8–15.
 - Basename de envío: `scripts/cvtool.py basename`. Familias: `base/familias.yaml`.

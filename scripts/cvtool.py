@@ -38,7 +38,16 @@ def _familia_cv(familia: str) -> Path:
 
 
 def cmd_render(args: argparse.Namespace) -> int:
-    cv = _familia_cv(args.familia)
+    copy_yaml = False
+    if args.cv:
+        cv = Path(args.cv)
+        if not cv.exists():
+            raise SystemExit(f"no existe {cv}")
+    elif args.familia:
+        cv = _familia_cv(args.familia)
+        copy_yaml = True
+    else:
+        raise SystemExit("render requiere --familia o --cv")
     out = args.out_dir or CV_DIR
     code = _run(
         [
@@ -52,7 +61,7 @@ def cmd_render(args: argparse.Namespace) -> int:
             args.basename,
         ]
     )
-    if code == 0:
+    if code == 0 and copy_yaml:
         dest = Path(out) / "cv.yaml"
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(cv, dest)
@@ -94,6 +103,33 @@ def cmd_basename(args: argparse.Namespace) -> int:
         raise SystemExit("perfil.nombre está vacío; inicializa la base primero")
     print(send_basename(nombre, args.puesto, args.empresa))
     return 0
+
+
+def cmd_match(args: argparse.Namespace) -> int:
+    cmd = [PY, str(SCRIPTS / "match.py"), "--jd", str(args.jd)]
+    if args.cv:
+        cmd.extend(["--cv", str(args.cv)])
+    if args.out:
+        cmd.extend(["--out", str(args.out)])
+    if args.veredicto:
+        cmd.extend(["--veredicto", str(args.veredicto)])
+    if args.base:
+        cmd.extend(["--base", str(args.base)])
+    return _run(cmd)
+
+
+def cmd_copy(args: argparse.Namespace) -> int:
+    dest = args.to_dir or CV_DIR
+    return _run(
+        [
+            PY,
+            str(SCRIPTS / "copy_to_cv.py"),
+            "--from-dir",
+            str(args.from_dir),
+            "--to-dir",
+            str(dest),
+        ]
+    )
 
 
 def cmd_tablero(args: argparse.Namespace) -> int:
@@ -174,10 +210,22 @@ def main() -> int:
 
     sub.add_parser("init", help="Comprueba base/origen/ antes de inicializar")
 
-    p_render = sub.add_parser("render", help="Renderiza el CV default de una familia")
-    p_render.add_argument("--familia", required=True)
+    p_render = sub.add_parser("render", help="Renderiza un CV (default de familia o --cv)")
+    p_render.add_argument("--familia")
+    p_render.add_argument("--cv", type=Path, help="cv.yaml adaptado (candidatura)")
     p_render.add_argument("--out-dir", type=Path)
     p_render.add_argument("--basename", default="curriculum")
+
+    p_match = sub.add_parser("match", help="Match determinista oferta vs vault")
+    p_match.add_argument("--jd", required=True, type=Path)
+    p_match.add_argument("--cv", type=Path)
+    p_match.add_argument("--out", type=Path)
+    p_match.add_argument("--veredicto", type=Path)
+    p_match.add_argument("--base", type=Path)
+
+    p_copy = sub.add_parser("copy", help="Copia la candidatura a cv/")
+    p_copy.add_argument("--from-dir", required=True, type=Path)
+    p_copy.add_argument("--to-dir", type=Path)
 
     p_verify = sub.add_parser("verify", help="Comprueba el PDF ATS")
     p_verify.add_argument("pdf", nargs="?", type=Path)
@@ -210,6 +258,8 @@ def main() -> int:
     dispatch = {
         "validate": cmd_validate,
         "render": cmd_render,
+        "match": cmd_match,
+        "copy": cmd_copy,
         "verify": cmd_verify,
         "test": cmd_test,
         "salary": cmd_salary,

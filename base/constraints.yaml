@@ -24,6 +24,7 @@ titulos_no_defendibles:
   - Staff
   - Manager
   - Director
+# Knockouts de seniority: el init los ajusta a lo que el candidato puede defender.
 knockout:
   anios_experiencia_max_aceptados: null
   seniority_no_aplicar:

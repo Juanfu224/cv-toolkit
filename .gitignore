@@ -4,5 +4,16 @@ __pycache__/
 .pytest_cache/
 *.egg-info/
 .DS_Store
-cv/_extract.txt
+
+# Última generación (el kit versiona .gitkeep + README)
+cv/*
+!cv/.gitkeep
+!cv/README.md
+
+# Defaults regenerables con `cvtool scaffold`
+plantillas/cv_default_*.yaml
+
+# Binarios de cada candidatura (el YAML de análisis sí se versiona)
+candidaturas/**/*.pdf
+candidaturas/**/*.docx
 candidaturas/**/_extract.txt

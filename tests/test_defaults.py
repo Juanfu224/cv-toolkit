@@ -40,6 +40,23 @@ class DefaultCvTests(unittest.TestCase):
             exp = cv.get("experiencia") or []
             self.assertTrue(exp[0].get("actual"))
 
+    def test_fechas_iso_a_yyyy_mm(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base = write_vault(root)
+            from common import dump_yaml, load_yaml
+
+            perfil = load_yaml(base / "perfil.yaml")
+            perfil["experiencia"][0]["inicio"] = "2025-03-15"
+            perfil["experiencia"][0]["fin"] = "actualidad"
+            perfil["educacion"][0]["fin"] = "2024-06-30"
+            dump_yaml(base / "perfil.yaml", perfil)
+            plantillas = root / "plantillas"
+            scaffold(base, plantillas)
+            cv = load_yaml(plantillas / "cv_default_dev.yaml")
+            self.assertEqual(cv["experiencia"][0]["fechas"], "2025-03 — Actualidad")
+            self.assertEqual(cv["formacion"][0]["fecha"], "2024-06")
+
     def test_github_opcional_no_es_error(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

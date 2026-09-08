@@ -25,12 +25,23 @@ def _texto_evidencia(ev: dict) -> str:
     return accion
 
 
+def _fecha_corta(value) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    if text.lower() in {"actualidad", "actual"}:
+        return "Actualidad"
+    if len(text) >= 7 and text[4] == "-" and text[:4].isdigit():
+        return text[:7]
+    if len(text) >= 4 and text[:4].isdigit():
+        return text[:4]
+    return text
+
+
 def _formacion(perfil: dict) -> list[dict]:
     out = []
     for edu in perfil.get("educacion") or []:
-        fecha = edu.get("fin") or edu.get("fecha") or ""
-        if isinstance(fecha, str) and len(fecha) >= 4:
-            fecha = fecha[:4]
+        fecha = _fecha_corta(edu.get("fin") or edu.get("fecha") or "")
         out.append(
             {
                 "titulo": edu.get("titulo"),
@@ -42,10 +53,12 @@ def _formacion(perfil: dict) -> list[dict]:
 
 
 def _fechas_rol(rol: dict) -> str:
-    inicio = rol.get("inicio") or ""
+    inicio = _fecha_corta(rol.get("inicio") or "")
     fin = rol.get("fin") or ""
     if rol.get("actual") or str(fin).lower() in {"actualidad", "actual"}:
         fin = "Actualidad"
+    else:
+        fin = _fecha_corta(fin)
     if inicio and fin:
         return f"{inicio} — {fin}"
     return str(inicio or fin)

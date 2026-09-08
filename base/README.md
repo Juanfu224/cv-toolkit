@@ -17,4 +17,4 @@ Hechos inmutables del candidato. El generador **no inventa** métricas, empleado
 1. Copia tu `curriculum.md` (o un PDF extraíble) y `presentacion.md` a `origen/`.
 2. En Cursor: **inicializa mi base**.
 3. Revisa campos `pendiente` y `NECESITA_CONFIRMACION`.
-4. `python scripts/cvtool.py scaffold && python scripts/cvtool.py validate`.
+4. `.venv/bin/python scripts/cvtool.py scaffold && .venv/bin/python scripts/cvtool.py validate`.

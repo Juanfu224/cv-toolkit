@@ -18,6 +18,6 @@ Raíz: carpeta con `base/` y `oferta/`. Python: `.venv/bin/python` si existe.
 - No enviar a portales.
 - `no_aplicar` → parar salvo que el usuario fuerce.
 - Basename: `scripts/cvtool.py basename`. Familias: `base/familias.yaml`.
-- Scripts para match, render, verify, salary, tablero. No improvisar PDFs.
+- CLI: `scripts/cvtool.py` (match, render, verify, salary, tablero, copy). No improvisar PDFs.
 
 Detalle de artefactos: `.cursor/skills/generar-candidatura/schemas.md`.

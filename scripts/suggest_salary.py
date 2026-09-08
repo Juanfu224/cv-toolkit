@@ -10,18 +10,18 @@ from familias import load_familias
 from paths import BASE
 
 
-def _band(familia: str, constraints: dict | None, base: Path | None) -> dict:
+def _band(familia: str, constraints: dict | None, base: Path | None) -> tuple[dict, str]:
     familias = load_familias(base)
     if familia in familias:
         salario = (familias[familia].get("salario") or {})
         if "min" in salario and "max" in salario:
-            return {"min": int(salario["min"]), "max": int(salario["max"])}
+            return {"min": int(salario["min"]), "max": int(salario["max"])}, "familias"
     constraints = constraints or load_yaml((base or BASE) / "constraints.yaml")
     salario = constraints.get("salario") or {}
     band = salario.get(familia)
     if not isinstance(band, dict) or "min" not in band or "max" not in band:
         raise SystemExit(f"falta salario para familia {familia!r} (familias.yaml o constraints.yaml)")
-    return {"min": int(band["min"]), "max": int(band["max"])}
+    return {"min": int(band["min"]), "max": int(band["max"])}, "constraints"
 
 
 def _fmt(min_eur: int, max_eur: int) -> str:
@@ -38,14 +38,14 @@ def suggest_salary(
     root = base or BASE
     constraints = constraints or load_yaml(root / "constraints.yaml")
     salario = constraints.get("salario") or {}
-    band = _band(familia, constraints, root)
+    band, fuente_banda = _band(familia, constraints, root)
     alinear = bool(salario.get("alinear_a_rango_publicado"))
 
     result: dict = {
         "familia": familia,
         "banda_propia": band,
         "usar": dict(band),
-        "fuente": "constraints",
+        "fuente": fuente_banda,
         "necesita_confirmacion": False,
         "motivo": "",
         "texto": _fmt(band["min"], band["max"]),

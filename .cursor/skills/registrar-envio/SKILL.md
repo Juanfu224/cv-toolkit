@@ -3,7 +3,8 @@ name: registrar-envio
 description: >-
   Marca una candidatura como enviada (u otro estado) en el tablero de
   seguimiento. Usar cuando el usuario dice registrar envío, ya lo envié,
-  pasé a entrevista, me rechazaron, o actualiza el estado de una oferta.
+  el pack está listo, pasé a entrevista, me rechazaron, o actualiza el
+  estado de una oferta.
 ---
 
 # Registrar envío
@@ -13,6 +14,7 @@ El sistema no envía a portales. Esto solo actualiza `candidaturas/tablero.yaml`
 ```bash
 PY=".venv/bin/python"
 [ -x "$PY" ] || PY=python3
+CVTOOL="$PY scripts/cvtool.py"
 ```
 
 ## 1. Identificar la candidatura
@@ -22,14 +24,24 @@ PY=".venv/bin/python"
 
 Estados válidos: `borrador`, `listo`, `enviada`, `entrevista`, `oferta`, `rechazada`, `descartada`.
 
-Tras un envío humano el estado es `enviada`. Fecha de envío = hoy (sistema) salvo que indiquen otra.
+- Pack revisado, aún no enviado → `listo` y `listo_para_enviar: true` en `meta.yaml`.
+- Tras un envío humano → `enviada`. Fecha de envío = hoy (sistema) salvo que indiquen otra.
+
+No reescribas el CV.
 
 ## 2. Actualizar archivos
 
-Si existe `candidaturas/<slug>/meta.yaml`, pon `listo_para_enviar: true` cuando confirmen que el PDF/DOCX era el correcto. No reescribas el CV.
+Pack listo (PDF/DOCX confirmados, sin enviar):
 
 ```bash
-$PY scripts/cvtool.py tablero set --slug "<slug>" --estado enviada \
+$CVTOOL tablero set --slug "<slug>" --estado listo \
+  --empresa "<Empresa>" --puesto "<Puesto>"
+```
+
+Ya enviado:
+
+```bash
+$CVTOOL tablero set --slug "<slug>" --estado enviada \
   --empresa "<Empresa>" --puesto "<Puesto>" --enviada YYYY-MM-DD
 ```
 
@@ -37,6 +49,8 @@ El script calcula seguimiento a +7 días. Si el usuario pide otra fecha, pásala
 
 Otros estados: mismo comando con `--estado entrevista|oferta|rechazada|descartada`.
 
+Si existe `candidaturas/<slug>/meta.yaml`, pon `listo_para_enviar: true` cuando confirmen que el PDF/DOCX era el correcto (`listo` o `enviada`).
+
 ## 3. Chat
 
-Confirma slug, estado, fecha de envío y fecha de seguimiento. Lista otras filas con seguimiento vencido si las hay (`cvtool.py tablero list`).
+Confirma slug, estado, fecha de envío y fecha de seguimiento. Lista otras filas con seguimiento vencido si las hay (`$CVTOOL tablero list`).

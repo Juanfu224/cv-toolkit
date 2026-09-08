@@ -78,6 +78,6 @@ $PY scripts/cvtool.py verify
 $PY scripts/cvtool.py status
 ```
 
-Si `verify_pdf.py` falla, arregla el default de esa familia y vuelve a renderizar.
+Si `cvtool verify` falla, arregla el default de esa familia y vuelve a renderizar.
 
 En el chat: qué se extrajo, qué quedó `pendiente`, y que el siguiente paso es pegar una oferta y decir **genera candidatura**.

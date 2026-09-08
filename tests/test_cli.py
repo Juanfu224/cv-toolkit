@@ -50,6 +50,22 @@ class TableroTests(unittest.TestCase):
             self.assertEqual(row["seguimiento"], "2026-09-15")
             self.assertEqual(len(list_rows(path)), 1)
             self.assertIn("enviada", ESTADOS)
+            self.assertIn("listo", ESTADOS)
+
+
+class CvtoolHelpTests(unittest.TestCase):
+    def test_help_incluye_match_y_copy(self) -> None:
+        import subprocess
+
+        proc = subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "cvtool.py"), "-h"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(proc.returncode, 0)
+        self.assertIn("match", proc.stdout)
+        self.assertIn("copy", proc.stdout)
 
 
 if __name__ == "__main__":
