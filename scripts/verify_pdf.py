@@ -8,7 +8,7 @@ from pypdf import PdfReader
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import load_yaml, norm
-from paths import BASE
+from paths import BASE, is_allowed_output
 
 
 def extract(path: Path) -> str:
@@ -36,6 +36,8 @@ def main() -> int:
     text = extract(args.pdf)
     blob = " ".join(text.lower().split())
     if args.out:
+        if not is_allowed_output(args.out):
+            raise SystemExit("--out fuera del repo o tmp")
         args.out.write_text(text, encoding="utf-8")
 
     errors: list[str] = []
@@ -63,8 +65,7 @@ def main() -> int:
         print("verify_pdf: FAIL")
         for e in errors:
             print(f"  - {e}")
-        preview = text[:500].replace("\n", " | ")
-        print(f"extracto: {preview}")
+        print(f"páginas: {len(reader.pages)}  (extracto omitido: PII)")
         return 1
 
     print("verify_pdf: OK")

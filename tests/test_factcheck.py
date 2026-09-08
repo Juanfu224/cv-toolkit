@@ -164,6 +164,50 @@ class FactcheckTests(unittest.TestCase):
                 any(v["tipo"] == "longitud" for v in report["violaciones"])
             )
 
+    def test_cliche_falla(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base = write_vault(root)
+            pack = root / "pack"
+            pack.mkdir()
+            dump_yaml(pack / "cv.yaml", _cv())
+            (pack / "presentacion.md").write_text(
+                "Soy apasionado por el desarrollo web y tengo excelentes habilidades.",
+                encoding="utf-8",
+            )
+            report = run_factcheck(pack, base)
+            self.assertFalse(report["ok"])
+            self.assertTrue(any(v["tipo"] == "cliche" for v in report["violaciones"]))
+
+    def test_bullet_sin_evidencia_id_falla(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base = write_vault(root)
+            pack = root / "pack"
+            pack.mkdir()
+            cv = _cv()
+            cv["experiencia"][0]["bullets"] = ["Texto sin evidencia"]
+            dump_yaml(pack / "cv.yaml", cv)
+            report = run_factcheck(pack, base)
+            self.assertFalse(report["ok"])
+            self.assertTrue(
+                any(v["tipo"] == "evidencia_id" for v in report["violaciones"])
+            )
+
+    def test_huerfanas_en_gaps_falla(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base = write_vault(root)
+            pack = root / "pack"
+            pack.mkdir()
+            dump_yaml(pack / "cv.yaml", _cv())
+            dump_yaml(pack / "gaps.yaml", {"huerfanas": ["Angular"], "score_t1": 0.8})
+            report = run_factcheck(pack, base)
+            self.assertFalse(report["ok"])
+            self.assertTrue(
+                any(v["tipo"] == "huerfana" for v in report["violaciones"])
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

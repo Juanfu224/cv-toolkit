@@ -20,15 +20,29 @@ FILES = [
 ]
 
 
-def factcheck_blocks(src: Path, require: bool) -> str | None:
+def factcheck_blocks(src: Path) -> str | None:
     fc = src / "factcheck.yaml"
-    if require and not fc.exists():
-        return "falta factcheck.yaml; corre cvtool factcheck antes de copy"
     if not fc.exists():
-        return None
+        return "falta factcheck.yaml; corre cvtool factcheck antes de copy"
     data = load_yaml(fc)
     if data.get("ok") is not True:
         return "factcheck no ok; no copiar a cv/"
+    return None
+
+
+def pack_estado_blocks(src: Path) -> str | None:
+    meta_path = src / "meta.yaml"
+    if not meta_path.exists():
+        return "falta meta.yaml con pack_estado: aprobado; aprueba el pack antes de copy"
+    meta = load_yaml(meta_path)
+    if not isinstance(meta, dict):
+        return "meta.yaml inválido; pack_estado debe ser aprobado"
+    estado = meta.get("pack_estado")
+    if estado != "aprobado":
+        return (
+            f"pack_estado={estado!r}; copy solo con pack_estado: aprobado "
+            "(HITL: aprobar / editar / rechazar)"
+        )
     return None
 
 
@@ -37,16 +51,25 @@ def main() -> int:
     parser.add_argument("--from-dir", required=True, type=Path)
     parser.add_argument("--to-dir", required=True, type=Path)
     parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Omite factcheck y pack_estado (HITL explícito)",
+    )
+    parser.add_argument(
         "--require-factcheck",
         action="store_true",
-        help="Exige factcheck.yaml con ok: true",
+        help=argparse.SUPPRESS,  # compat: ya es el comportamiento por defecto
     )
     args = parser.parse_args()
     src = args.from_dir
     dest = args.to_dir
-    block = factcheck_blocks(src, args.require_factcheck)
-    if block:
-        raise SystemExit(block)
+    if not args.force:
+        block = factcheck_blocks(src)
+        if block:
+            raise SystemExit(block)
+        block = pack_estado_blocks(src)
+        if block:
+            raise SystemExit(block)
     if not is_allowed_output(src) or not is_allowed_output(dest):
         raise SystemExit("from-dir/to-dir fuera del repo o tmp")
     dest.mkdir(parents=True, exist_ok=True)

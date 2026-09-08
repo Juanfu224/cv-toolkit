@@ -156,8 +156,8 @@ def cmd_copy(args: argparse.Namespace) -> int:
         "--to-dir",
         str(dest),
     ]
-    if args.require_factcheck:
-        cmd.append("--require-factcheck")
+    if args.force:
+        cmd.append("--force")
     return _run(cmd)
 
 
@@ -319,13 +319,16 @@ def main() -> int:
     p_vjd = sub.add_parser("validate-jd", help="Valida jd.yaml (claves + T1 mínimo)")
     p_vjd.add_argument("jd", type=Path)
 
-    p_copy = sub.add_parser("copy", help="Copia la candidatura a cv/")
+    p_copy = sub.add_parser(
+        "copy",
+        help="Copia la candidatura a cv/ (exige factcheck ok + pack_estado aprobado)",
+    )
     p_copy.add_argument("--from-dir", required=True, type=Path)
     p_copy.add_argument("--to-dir", type=Path)
     p_copy.add_argument(
-        "--require-factcheck",
+        "--force",
         action="store_true",
-        help="Exige factcheck.yaml con ok: true",
+        help="Omite factcheck y pack_estado (HITL explícito)",
     )
 
     p_ingest = sub.add_parser(

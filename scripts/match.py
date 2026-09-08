@@ -6,7 +6,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import dump_yaml, load_yaml, norm, phrase_in_terms, phrase_in_text, tokens
-from paths import BASE
+from paths import BASE, is_allowed_output
+from validate_jd import validate_jd
 
 
 def vault_terms(perfil: dict, skills: dict, evidencias_doc: dict) -> set[str]:
@@ -243,7 +244,19 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    if args.out and not is_allowed_output(args.out):
+        raise SystemExit("--out fuera del repo o tmp")
+    if args.veredicto and not is_allowed_output(args.veredicto):
+        raise SystemExit("--veredicto fuera del repo o tmp")
+
     jd = load_yaml(args.jd)
+    errors = validate_jd(jd)
+    if errors:
+        print(f"jd INVÁLIDO ({args.jd}):", file=sys.stderr)
+        for e in errors:
+            print(f"  - {e}", file=sys.stderr)
+        return 1
+
     cv = load_yaml(args.cv) if args.cv and args.cv.exists() else None
     gaps, veredicto = run_match(jd, cv, base_dir=args.base, forzar=args.forzar)
 

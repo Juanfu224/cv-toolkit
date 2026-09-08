@@ -9,7 +9,7 @@ from weasyprint import CSS, HTML
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import contact_links, load_yaml
-from paths import BASE, PLANTILLAS
+from paths import BASE, PLANTILLAS, is_allowed_output
 
 
 from docx import Document
@@ -248,6 +248,8 @@ def main() -> int:
     parser.add_argument("--basename", default="curriculum")
     args = parser.parse_args()
 
+    if not is_allowed_output(args.out_dir):
+        raise SystemExit("--out-dir fuera del repo o tmp")
     cv = apply_perfil(load_yaml(args.cv))
     out = args.out_dir
     out.mkdir(parents=True, exist_ok=True)

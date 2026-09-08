@@ -206,7 +206,7 @@ $CVTOOL respuestas --data candidaturas/<slug>/respuestas_data.yaml \
 Knockouts primero. Preaviso desde `base/constraints.yaml`. Salario: `$CVTOOL salary --familia <id> [--oferta-min N] [--oferta-max N]` y usa el `texto` (si imprime `NECESITA_CONFIRMACION`, no inventes cifra). Si falta otro hecho: `NECESITA_CONFIRMACION`.
 - `entrevista.md`: sigue `plantillas/entrevista.md.j2` — headline enviado, evidencias STAR usadas (ids), 5 talking points, gaps que no debe fingir.
 - `analisis.md`: familia, score T1, T1 missing, riesgos.
-- `meta.yaml` de la candidatura: `listo_para_enviar: false`.
+- `meta.yaml` de la candidatura: `listo_para_enviar: false`, `pack_estado: pendiente`.
 
 ## 11. Factcheck
 
@@ -215,7 +215,7 @@ $CVTOOL factcheck --dir candidaturas/<slug> --base base \
   --out candidaturas/<slug>/factcheck.yaml
 ```
 
-Si sale `ok: false`, corrige el artefacto citado (sin inventar) y vuelve a factcheck. No copies a `cv/` con violaciones.
+Si sale `ok: false`, corrige el artefacto citado (sin inventar) y vuelve a factcheck. No copies a `cv/` con violaciones. Factcheck también rechaza clichés, bullets sin `evidencia_id` y `huerfanas` en `gaps.yaml`.
 
 ## 12. HITL — no copies todavía
 
@@ -223,19 +223,21 @@ En el chat, muestra: veredicto, `score_t1`, `factcheck.confianza`, violaciones (
 
 Pregunta explícitamente: **aprobar** / **editar** / **rechazar** el pack.
 
-- **editar**: vuelve al paso que indiquen (CV, presentación u outreach). No copies.
-- **rechazar**: para. No copies. Tablero puede quedar en `borrador` o `descartada` si el usuario lo pide.
-- **aprobar**: solo entonces el paso 13. Silencio ≠ sí.
+- **editar**: escribe `pack_estado: editado` en `meta.yaml`, vuelve al paso que indiquen (CV, presentación u outreach). No copies. Tras corrección y nuevo factcheck ok → vuelve a preguntar; solo **aprobar** pone `pack_estado: aprobado`.
+- **rechazar**: escribe `pack_estado: rechazado`. No copies. Tablero puede quedar en `borrador` o `descartada` si el usuario lo pide.
+- **aprobar**: escribe `pack_estado: aprobado` en `meta.yaml` y solo entonces el paso 13. Silencio ≠ sí.
 
 ## 13. Copiar última versión y tablero
 
-Solo tras aprobación explícita:
+Solo tras aprobación explícita (`pack_estado: aprobado` + factcheck ok):
 
 ```bash
-$CVTOOL copy --from-dir candidaturas/<slug> --require-factcheck
+$CVTOOL copy --from-dir candidaturas/<slug>
 $CVTOOL tablero set --slug "<slug>" --estado borrador \
   --empresa "<Empresa>" --puesto "<Puesto>"
 ```
+
+(`copy` exige factcheck ok y `pack_estado: aprobado`; `--force` solo si el humano lo pide explícitamente.)
 
 En el chat: veredicto, ruta de la carpeta, PDF/DOCX a enviar, y avisos `NECESITA_CONFIRMACION`. Recuerda: el envío al portal (y el outreach) lo hace la persona; después, **registrar envío**.
 

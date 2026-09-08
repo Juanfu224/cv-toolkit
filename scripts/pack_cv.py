@@ -14,7 +14,7 @@ from pypdf import PdfReader
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import dump_yaml, load_yaml
 from match import cv_blob, keyword_in_text
-from paths import BASE
+from paths import BASE, is_allowed_output
 from render_cv import apply_perfil, to_docx, to_markdown, to_pdf
 
 SKILL_FLOOR = 8
@@ -538,6 +538,12 @@ def main() -> int:
 
     if not args.cv.exists():
         raise SystemExit(f"no existe {args.cv}")
+    if not is_allowed_output(args.out):
+        raise SystemExit("--out fuera del repo o tmp")
+    if args.report and not is_allowed_output(args.report):
+        raise SystemExit("--report fuera del repo o tmp")
+    if args.out_dir and not is_allowed_output(args.out_dir):
+        raise SystemExit("--out-dir fuera del repo o tmp")
 
     cv = load_yaml(args.cv)
     if not args.no_perfil:

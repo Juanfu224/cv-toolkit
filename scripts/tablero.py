@@ -7,7 +7,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import dump_yaml, load_yaml
-from paths import CANDIDATURAS, TABLERO
+from paths import CANDIDATURAS, TABLERO, is_allowed_output
 
 ESTADOS = (
     "borrador",
@@ -44,7 +44,10 @@ def load_tablero(path: Path | None = None) -> dict:
 
 
 def save_tablero(data: dict, path: Path | None = None) -> None:
-    dump_yaml(path or TABLERO, data)
+    target = path or TABLERO
+    if not is_allowed_output(target):
+        raise SystemExit("tablero fuera del repo o tmp")
+    dump_yaml(target, data)
 
 
 def upsert(
@@ -84,7 +87,8 @@ def upsert(
     if notas is not None:
         row["notas"] = notas
     save_tablero(data, path)
-    sync_meta_listo(slug, estado)
+    candidaturas_dir = path.parent if path is not None else None
+    sync_meta_listo(slug, estado, candidaturas_dir=candidaturas_dir)
     return row
 
 

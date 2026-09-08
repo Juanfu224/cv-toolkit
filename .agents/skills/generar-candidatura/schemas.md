@@ -89,8 +89,11 @@ fecha: YYYY-MM-DD
 familia: string
 veredicto: aplicar | aplicar_con_reservas | no_aplicar
 listo_para_enviar: false
+pack_estado: pendiente | aprobado | editado | rechazado
 formato_envio: pdf | docx
 ```
+
+`pack_estado` arranca en `pendiente` tras generar el pack. `cvtool copy` exige `aprobado` (salvo `--force`). Tras **editar** → `editado` y re-aprobación a `aprobado`.
 
 ## meta.yaml (oferta/)
 

@@ -60,6 +60,29 @@ class TableroTests(unittest.TestCase):
             self.assertIn("enviada", ESTADOS)
             self.assertIn("listo", ESTADOS)
 
+    def test_upsert_custom_tablero_sync_meta(self) -> None:
+        from common import dump_yaml, load_yaml
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            slug = "2026-09-08_acme_dev"
+            cand = root / slug
+            cand.mkdir()
+            dump_yaml(
+                cand / "meta.yaml",
+                {
+                    "empresa": "Acme",
+                    "puesto": "Dev",
+                    "listo_para_enviar": False,
+                    "pack_estado": "aprobado",
+                },
+            )
+            tablero = root / "tablero.yaml"
+            upsert(slug, "listo", empresa="Acme", puesto="Dev", path=tablero)
+            meta = load_yaml(cand / "meta.yaml")
+            self.assertTrue(meta["listo_para_enviar"])
+
+
 
 class CvtoolHelpTests(unittest.TestCase):
     def test_help_incluye_match_copy_doctor_respuestas(self) -> None:
@@ -88,13 +111,14 @@ class SkillContractTests(unittest.TestCase):
             ROOT / ".agents" / "skills" / "generar-candidatura" / "SKILL.md"
         ).read_text(encoding="utf-8")
         self.assertIn("factcheck", skill)
-        self.assertIn("--require-factcheck", skill)
+        self.assertIn("pack_estado", skill)
         self.assertIn("aprobar", skill)
         self.assertIn("rechazar", skill)
         self.assertIn("outreach.md", skill)
         self.assertIn("≤250", skill)
         self.assertIn("ingest-jd", skill)
         self.assertIn("Silencio ≠ sí", skill)
+        self.assertNotIn("--require-factcheck", skill)
 
 
 class DoctorTests(unittest.TestCase):

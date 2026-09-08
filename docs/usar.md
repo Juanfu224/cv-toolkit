@@ -47,7 +47,15 @@ Si cambió un hecho real (salario, proyecto, skill): **actualizar base** antes d
 
 ## Veredicto y `--forzar`
 
-Tras el match, lee `candidaturas/<slug>/veredicto.yaml`:
+Tras el match, lee `candidaturas/<slug>/veredicto.yaml`. Umbrales T1 del match:
+
+| Cobertura T1 | `resultado` típico |
+|---|---|
+| &lt; 40% | `no_aplicar` |
+| &lt; 70% o algún T1 faltante | `aplicar_con_reservas` |
+| ≥ 70% y T1 cubiertos | `aplicar` (si no hay knockouts) |
+
+También `no_aplicar` si falta un `must_have`, seniority en knockouts, presencial fuera de zona sin traslado, o certs ausentes.
 
 | `resultado` | Qué hacer |
 |---|---|
@@ -63,6 +71,8 @@ Si tú fuerzas pese a `no_aplicar`:
 
 `--forzar` solo pone `forzar: true` (HITL); **no cambia** `resultado`. El agente puede seguir el pipeline si tú lo pediste.
 
+`cvtool copy` exige `factcheck.yaml` con `ok: true` y `meta.pack_estado: aprobado`. Sin eso, no copia a `cv/` (salvo `--force` que tú pidas explícitamente).
+
 ## Qué enviar al portal
 
 - PDF/DOCX de `cv/` (última generación) o del pack en `candidaturas/<slug>/`.
@@ -73,7 +83,7 @@ Si tú fuerzas pese a `no_aplicar`:
 ## ATS y límites
 
 - Una columna, texto seleccionable, contacto en el cuerpo, PDF + DOCX.
-- Hechos solo del vault. `no_aplicar` si falta un `must_have`, T1 bajo, seniority en knockouts, presencial fuera de zona sin traslado, o certs ausentes.
+- Hechos solo del vault. `no_aplicar` si falta un `must_have`, T1 &lt;40%, seniority en knockouts, presencial fuera de zona sin traslado, o certs ausentes. T1 entre 40% y 70% (o T1 faltante) → `aplicar_con_reservas`.
 
 ## Carpetas
 
@@ -121,7 +131,8 @@ Antes del match: `cvtool validate-jd path/jd.yaml`. Tras HITL: `cvtool match …
 | Vault vacío | CV en `base/origen/` → **inicializa mi base** |
 | `no_aplicar` | Lee `veredicto.yaml`; fuerza solo si aceptas el gap (`--forzar`) |
 | PDF > 1 página | `cvtool pack --cv … --out … --gaps …` y vuelve a `render`/`verify` |
-| `factcheck` no ok | Quita la métrica/tech inventada; no copies a `cv/` |
+| `factcheck` no ok | Corrige métrica/tech/cliché/`evidencia_id`/`huerfanas`; no copies a `cv/` |
+| `copy` bloquea | Falta factcheck ok o `pack_estado: aprobado` en `meta.yaml` (HITL) |
 
 ## FAQ
 

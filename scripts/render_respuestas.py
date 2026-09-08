@@ -8,7 +8,7 @@ from jinja2 import Environment, FileSystemLoader
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import load_yaml
-from paths import PLANTILLAS
+from paths import PLANTILLAS, is_allowed_output
 
 
 def render_respuestas(data: dict) -> str:
@@ -33,6 +33,8 @@ def main() -> int:
     parser.add_argument("--out", required=True, type=Path)
     args = parser.parse_args()
 
+    if not is_allowed_output(args.out):
+        raise SystemExit("--out fuera del repo o tmp")
     data = load_yaml(args.data)
     text = render_respuestas(data)
     args.out.parent.mkdir(parents=True, exist_ok=True)

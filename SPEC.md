@@ -1,6 +1,6 @@
 # SPEC.md — CV Toolkit
 
-**Versión:** 0.4 — 2026-09-08
+**Versión:** 0.5 — 2026-09-08
 **Estado:** Aprobado
 
 > Contrato de dominio inmutable durante una tarea activa. El código se deriva de aquí, no al revés.
@@ -19,7 +19,8 @@ Herramienta local para adaptar un CV ATS de una columna a cada oferta laboral a 
 5. CLI unificada: `scripts/cvtool.py` (doctor, status, init, validate, validate-jd, ingest-jd, scaffold, match, pack, render, verify, factcheck, copy, salary, respuestas, empresa, basename, tablero, test) y `scripts/demo_smoke.sh`.
 6. Empaquetar el CV adaptado con máxima densidad de señal en ≤1 página A4 (`cvtool pack`) sin inventar hechos ni degradar tipografía ATS.
 7. Ingesta de JD público (Greenhouse / Ashby / Lever, GET JSON allowlist, sin login). Host no allowlist → pegar texto en `oferta/`.
-8. Comprobación factual (`cvtool factcheck`) antes de `copy`: métricas, empleadores y tecnologías del pack deben existir en el vault.
+8. Comprobación factual (`cvtool factcheck`) antes de `copy`: métricas, empleadores, tecnologías, clichés, `evidencia_id` en bullets y `huerfanas` de `gaps.yaml` (si existe) deben pasar; `copy` exige `factcheck.yaml` `ok: true` y `meta.pack_estado: aprobado` (salvo `--force` HITL).
+9. Pack HITL en disco: `meta.pack_estado` ∈ {pendiente, aprobado, editado, rechazado}; tras editar → `editado` y re-aprobación a `aprobado` antes de `copy`.
 
 ### Objetivos no funcionales
 - Latencia p95: N/A (CLI local batch)
@@ -79,7 +80,7 @@ usuario → oferta/ (texto | ingest-jd público) + base/
 | Máquina | Estados | Transiciones legales | Ilegales |
 |---|---|---|---|
 | veredicto | aplicar, aplicar_con_reservas, no_aplicar (+ forzar HITL) | match → veredicto; forzar solo con HITL explícito (`cvtool match --forzar`) | Generar CV tras `no_aplicar` sin fuerza |
-| pack HITL | pendiente, aprobado, editado, rechazado | factcheck ok → humano aprueba/edita/rechaza → `copy` solo si aprueba | `copy` con factcheck `ok: false` o sin aprobación |
+| pack HITL | pendiente, aprobado, editado, rechazado | factcheck ok → humano aprueba/edita/rechaza → `meta.pack_estado`; `copy` solo si `aprobado` | `copy` con factcheck `ok: false`, sin `factcheck.yaml`, o `pack_estado` ≠ `aprobado` (salvo `--force`) |
 | tablero | borrador, listo, enviada, entrevista, oferta, rechazada, descartada | registrar envío / actualización humana; `listo`/`enviada` pone `meta.listo_para_enviar: true` | Auto-marcar enviado sin confirmación |
 
 ### Persistencia
@@ -94,7 +95,7 @@ usuario → oferta/ (texto | ingest-jd público) + base/
 - Errores: exit codes CLI; `cvtool validate` → VACÍO / ERROR / WARN; `ingest-jd` host no allowlist → exit 2 (pegar texto); `factcheck` no ok → exit 1
 - Endpoints: N/A
 
-Contrato CLI (observable): `scripts/cvtool.py` subcomandos documentados en `-h` y README. `cvtool pack` usa `base/aliases.yaml` por defecto si existe. `cvtool ingest-jd` no hace login. `cvtool copy --require-factcheck` exige `factcheck.yaml` con `ok: true`.
+Contrato CLI (observable): `scripts/cvtool.py` subcomandos documentados en `-h` y README. `cvtool pack` usa `base/aliases.yaml` por defecto si existe. `cvtool ingest-jd` no hace login. `cvtool match` valida `jd.yaml` antes del match. `cvtool copy` exige `factcheck.yaml` con `ok: true` y `meta.pack_estado: aprobado`; `--force` omite ambos gates (HITL explícito).
 
 ## 5. Flujos
 
@@ -122,7 +123,7 @@ Qué **debe fallar** si se rompe el contrato:
 | PDF ATS | `cvtool verify` |
 | Pack ≤1 página | `cvtool pack` + tests de ranking / e2e |
 | Ingesta ATS pública (sin red) | fixtures JSON → `ingest-jd --from-file`; host no allowlist → exit 2 |
-| Factcheck | métrica inventada → `ok: false`; `copy --require-factcheck` bloqueado |
+| Factcheck | métrica inventada / cliché / sin `evidencia_id` / `huerfanas` → `ok: false`; `copy` sin gates o con `pack_estado` ≠ aprobado → bloqueado; `--force` omite |
 | E2E ejemplos | `tests/test_e2e_ejemplos.py` (vault-minimo + oferta-demo) |
 | Política de agentes | `sh scripts/verify-agent-policy.sh` |
 

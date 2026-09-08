@@ -10,7 +10,9 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "tests"))
 
-from common import load_yaml  # noqa: E402
+from common import dump_yaml, load_yaml  # noqa: E402
+from copy_to_cv import main as copy_main  # noqa: E402
+from factcheck import run_factcheck  # noqa: E402
 from helpers import write_vault  # noqa: E402
 from match import run_match  # noqa: E402
 from render_cv import to_docx, to_markdown, to_pdf  # noqa: E402
@@ -107,6 +109,57 @@ class E2EEjemplosTests(unittest.TestCase):
 
             _g2, v2 = run_match(DEMO_JD, cv=cv, base_dir=base)
             self.assertIn(v2["resultado"], {"aplicar", "aplicar_con_reservas"})
+
+            # Gate copy: factcheck + pack_estado aprobado
+            pack = root / "candidatura"
+            pack.mkdir()
+            # Bullets con evidencia_id para pasar factcheck de calidad
+            for bloque in (cv.get("experiencia") or []) + (cv.get("proyectos") or []):
+                new_bullets = []
+                for i, b in enumerate(bloque.get("bullets") or []):
+                    if isinstance(b, str):
+                        new_bullets.append({"texto": b, "evidencia_id": f"e2e-{i}"})
+                    elif isinstance(b, dict) and not b.get("evidencia_id"):
+                        b = dict(b)
+                        b["evidencia_id"] = f"e2e-{i}"
+                        new_bullets.append(b)
+                    else:
+                        new_bullets.append(b)
+                bloque["bullets"] = new_bullets
+            dump_yaml(pack / "cv.yaml", cv)
+            dump_yaml(pack / "gaps.yaml", {"huerfanas": [], "score_t1": gaps["score_t1"]})
+            dump_yaml(
+                pack / "meta.yaml",
+                {
+                    "empresa": "Acme Demo SL",
+                    "puesto": "Desarrollador web junior",
+                    "pack_estado": "aprobado",
+                    "listo_para_enviar": False,
+                },
+            )
+            (pack / "presentacion.md").write_text(
+                "En Empresa A trabajé HTML CSS TypeScript. "
+                "Acme publica producto de facturación. Puedo hablar el jueves.",
+                encoding="utf-8",
+            )
+            (pack / "outreach.md").write_text(
+                "Vi el anuncio. HTML y TypeScript en Empresa A. ¿15 minutos?",
+                encoding="utf-8",
+            )
+            report = run_factcheck(pack, base)
+            self.assertTrue(report["ok"], report)
+            dump_yaml(pack / "factcheck.yaml", report)
+            dest = root / "cv"
+            dest.mkdir()
+            sys.argv = [
+                "copy_to_cv.py",
+                "--from-dir",
+                str(pack),
+                "--to-dir",
+                str(dest),
+            ]
+            self.assertEqual(copy_main(), 0)
+            self.assertTrue((dest / "cv.yaml").exists())
 
 
 if __name__ == "__main__":

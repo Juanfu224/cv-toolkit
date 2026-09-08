@@ -20,6 +20,22 @@ PRESENTACION_MAX = 250
 OUTREACH_MAX = 80
 MAX_HECHOS = 3
 
+# Lista negra alineada con revision-checklist.md
+CLICHE_PHRASES = (
+    "apasionado por",
+    "excelentes habilidades",
+    "me permito presentar",
+    "orientado a resultados",
+    "altamente motivado",
+    "destacado profesional",
+    "sinergias",
+    "robusto ecosistema",
+    "leveraged",
+    "spearheaded",
+    "i am thrilled to apply",
+    "dinámico entorno",
+)
+
 ARTIFACT_MD = ("presentacion.md", "respuestas.md", "outreach.md")
 VAULT_FILES = (
     "perfil.yaml",
@@ -221,6 +237,69 @@ def check_empresa(pack_dir: Path) -> list[dict]:
     return viol
 
 
+def check_cliches(text: str) -> list[dict]:
+    low = (text or "").lower()
+    viol: list[dict] = []
+    for phrase in CLICHE_PHRASES:
+        if phrase in low:
+            viol.append(
+                {
+                    "tipo": "cliche",
+                    "dato": phrase,
+                    "detalle": "frase en lista negra del revisor",
+                }
+            )
+    return viol
+
+
+def check_evidencia_ids(cv: dict) -> list[dict]:
+    viol: list[dict] = []
+    for bloque in (cv.get("experiencia") or []) + (cv.get("proyectos") or []):
+        label = bloque.get("empresa") or bloque.get("nombre") or "?"
+        for i, b in enumerate(bloque.get("bullets") or []):
+            if isinstance(b, str):
+                viol.append(
+                    {
+                        "tipo": "evidencia_id",
+                        "dato": f"{label}[{i}]",
+                        "detalle": "bullet sin evidencia_id (texto plano)",
+                    }
+                )
+                continue
+            if not isinstance(b, dict):
+                continue
+            eid = b.get("evidencia_id")
+            if not eid or not str(eid).strip():
+                viol.append(
+                    {
+                        "tipo": "evidencia_id",
+                        "dato": f"{label}[{i}]",
+                        "detalle": "bullet sin evidencia_id",
+                    }
+                )
+    return viol
+
+
+def check_huerfanas(pack_dir: Path) -> list[dict]:
+    path = pack_dir / "gaps.yaml"
+    if not path.exists():
+        return []
+    gaps = load_yaml(path)
+    if not isinstance(gaps, dict):
+        return []
+    huerfanas = gaps.get("huerfanas") or []
+    if not huerfanas:
+        return []
+    return [
+        {
+            "tipo": "huerfana",
+            "dato": str(term),
+            "detalle": "T1 en vault pero no en skills y bullets (cobertura_doble)",
+        }
+        for term in huerfanas
+    ]
+
+
 def load_vault(base: Path) -> dict[str, Any]:
     return {
         "perfil": load_yaml(base / "perfil.yaml"),
@@ -242,9 +321,12 @@ def run_factcheck(pack_dir: Path, base: Path | None = None) -> dict:
     if cv is not None:
         violaciones.extend(check_tecnologias(cv, vault))
         violaciones.extend(check_empleadores(cv, vault["perfil"]))
+        violaciones.extend(check_evidencia_ids(cv))
     long_v, n_pres, n_out = check_longitud(named)
     violaciones.extend(long_v)
     violaciones.extend(check_empresa(pack_dir))
+    violaciones.extend(check_cliches(combined))
+    violaciones.extend(check_huerfanas(pack_dir))
 
     unique_metrics = {norm(m) for m in METRIC_RE.findall(combined or "") if norm(m)}
     tech_total = len([c for c in (cv.get("competencias") or []) if c]) if cv else 0

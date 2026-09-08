@@ -20,7 +20,7 @@ Enforcement: política administrada / OS / sandbox > hooks (Cursor: `failClosed`
 - Enviar o publicar candidaturas en portales (InfoJobs u otros) desde el agente.
 - Login, CAPTCHA, sesión o scrape de Greenhouse, Ashby, Lever, Workday, LinkedIn u otros; `ingest-jd` solo GET a hosts allowlist.
 - Embeddings / índice vectorial del vault (`base/`) o de artefactos con PII.
-- Copiar a `cv/` con `factcheck.yaml` `ok: false` o sin aprobación HITL del pack.
+- Copiar a `cv/` con `factcheck.yaml` `ok: false`, sin `factcheck.yaml`, o sin `meta.pack_estado: aprobado` (el CLI lo enforcea; `--force` solo con HITL explícito del humano).
 - Pisar `candidaturas/` de otra fecha; tratar `oferta/` como historial o `cv/` como vault.
 
 ### 1.2 FS / Git
@@ -51,7 +51,7 @@ Antes de la acción: `{accion, impacto, pregunta}` → afirmación explícita. H
 |---|---|
 | Forzar candidatura tras `no_aplicar` | Humano acepta el gap explícitamente |
 | GET ATS público (`ingest-jd`) | Host allowlist; sin login; red del IDE = HITL |
-| Copiar pack a `cv/` | `factcheck` ok + aprobación explícita (aprobar / editar / rechazar) |
+| Copiar pack a `cv/` | `factcheck` ok + `meta.pack_estado: aprobado` (CLI); `--force` solo con HITL explícito |
 | Migración PII / cambio de contacto en vault | Skill `actualizar-base` + hecho verificable |
 | Nuevo webhook (si aplica) | Firma del SPEC + idempotencia + 4xx opaco |
 | Job de estado | Idempotencia + transacción |

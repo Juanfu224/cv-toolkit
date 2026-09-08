@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from ingest_jd import (  # noqa: E402
     EXIT_PASTE,
+    AllowlistRedirectHandler,
     IngestError,
     adapter_for_url,
     api_url_for,
@@ -71,6 +72,51 @@ class AllowlistTests(unittest.TestCase):
         self.assertIsNone(adapter_for_url(url))
         code = run_ingest(url=url, out_dir=Path(tempfile.mkdtemp()))
         self.assertEqual(code, EXIT_PASTE)
+
+
+class RedirectHandlerTests(unittest.TestCase):
+    def test_redirect_fuera_allowlist_falla(self) -> None:
+        handler = AllowlistRedirectHandler()
+        req = type("Req", (), {})()
+        with self.assertRaises(IngestError) as ctx:
+            handler.redirect_request(
+                req,
+                None,
+                302,
+                "Found",
+                {},
+                "https://evil.example.com/steal",
+            )
+        self.assertIn("allowlist", str(ctx.exception).lower())
+
+    def test_redirect_http_falla(self) -> None:
+        handler = AllowlistRedirectHandler()
+        req = type("Req", (), {})()
+        with self.assertRaises(IngestError):
+            handler.redirect_request(
+                req,
+                None,
+                302,
+                "Found",
+                {},
+                "http://boards.greenhouse.io/acme/jobs/99",
+            )
+
+    def test_redirect_allowlist_delega(self) -> None:
+        """Con host allowlist HTTPS, no lanza IngestError y delega al padre."""
+        from unittest.mock import MagicMock, patch
+
+        handler = AllowlistRedirectHandler()
+        req = MagicMock()
+        newurl = "https://boards-api.greenhouse.io/v1/boards/acme/jobs/99"
+        with patch.object(
+            AllowlistRedirectHandler.__bases__[0],
+            "redirect_request",
+            return_value="delegated",
+        ) as parent:
+            result = handler.redirect_request(req, None, 302, "Found", {}, newurl)
+        self.assertEqual(result, "delegated")
+        parent.assert_called_once()
 
 
 class ParseFixtureTests(unittest.TestCase):
