@@ -22,7 +22,11 @@ def main() -> int:
     src = args.from_dir
     dest = args.to_dir
     dest.mkdir(parents=True, exist_ok=True)
-    for stale in list(dest.glob("CV_*.pdf")) + list(dest.glob("CV_*.docx")):
+    for stale in (
+        list(dest.glob("CV_*.pdf"))
+        + list(dest.glob("CV_*.docx"))
+        + list(dest.glob("CV_*.md"))
+    ):
         stale.unlink()
         print(f"eliminado {stale.name}")
     copied = 0
@@ -32,9 +36,8 @@ def main() -> int:
             shutil.copy2(f, dest / name)
             print(f"copiado {name}")
             copied += 1
-    pdf_named = list(src.glob("CV_*.pdf"))
-    docx_named = list(src.glob("CV_*.docx"))
-    for f in pdf_named + docx_named:
+    named = list(src.glob("CV_*.pdf")) + list(src.glob("CV_*.docx")) + list(src.glob("CV_*.md"))
+    for f in named:
         shutil.copy2(f, dest / f.name)
         print(f"copiado {f.name}")
         copied += 1

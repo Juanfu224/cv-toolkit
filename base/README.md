@@ -1,8 +1,13 @@
 # Vault (`base/`)
 
-Hechos inmutables. El generador no inventa métricas ni tecnologías.
+Hechos inmutables del candidato. El kit **no inventa** métricas, empresas ni tecnologías.
 
-Rellena con **inicializa mi base** (CV en `origen/`). Luego:
-`.venv/bin/python scripts/cvtool.py scaffold && .venv/bin/python scripts/cvtool.py doctor`
+## Cómo empezar
 
-Detalle de archivos y flujo: [README raíz](../README.md). Demo: [ejemplos/](../ejemplos/README.md).
+1. Pon tu CV en [`origen/`](origen/) (`curriculum.md` preferido, o PDF con texto).
+2. Di **inicializa mi base** en tu agente (lee [`AGENTS.md`](../AGENTS.md)).
+3. Luego: `.venv/bin/python scripts/cvtool.py scaffold && .venv/bin/python scripts/cvtool.py doctor`
+
+¿Sin CV? Smoke sin tocar este vault: `sh scripts/demo_smoke.sh`. Demo YAML: [`ejemplos/vault-minimo`](../ejemplos/vault-minimo).
+
+Flujo completo: [README raíz](../README.md).

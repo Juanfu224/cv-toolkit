@@ -170,7 +170,11 @@ def veredicto_de(
 
 
 def run_match(
-    jd: dict, cv: dict | None = None, base_dir: Path | None = None
+    jd: dict,
+    cv: dict | None = None,
+    base_dir: Path | None = None,
+    *,
+    forzar: bool = False,
 ) -> tuple[dict, dict]:
     base = base_dir or BASE
     perfil = load_yaml(base / "perfil.yaml")
@@ -220,7 +224,7 @@ def run_match(
         "motivos": motivos,
         "score_t1": cov_t1,
         "cobertura_doble": doble,
-        "forzar": False,
+        "forzar": bool(forzar),
     }
     return gaps, veredicto
 
@@ -232,11 +236,16 @@ def main() -> int:
     parser.add_argument("--out", type=Path)
     parser.add_argument("--veredicto", type=Path)
     parser.add_argument("--base", type=Path, help="Vault alternativo (tests)")
+    parser.add_argument(
+        "--forzar",
+        action="store_true",
+        help="Marca forzar:true en el veredicto (HITL; no cambia el resultado)",
+    )
     args = parser.parse_args()
 
     jd = load_yaml(args.jd)
     cv = load_yaml(args.cv) if args.cv and args.cv.exists() else None
-    gaps, veredicto = run_match(jd, cv, base_dir=args.base)
+    gaps, veredicto = run_match(jd, cv, base_dir=args.base, forzar=args.forzar)
 
     if args.out:
         dump_yaml(args.out, gaps)
@@ -248,6 +257,8 @@ def main() -> int:
         dump_yaml(args.veredicto, veredicto)
 
     print(f"veredicto: {veredicto['resultado']}  score_t1={veredicto['score_t1']}")
+    if veredicto.get("forzar"):
+        print("  forzar: true")
     for m in veredicto["motivos"]:
         print(f"  - {m}")
     return 0

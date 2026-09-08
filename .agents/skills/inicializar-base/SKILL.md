@@ -33,7 +33,7 @@ Ejecuta `$PY scripts/cvtool.py init`.
 
 Si falta `base/origen/curriculum.md` y `curriculum.pdf`: **para** y pide esos archivos (y `presentacion.md` si la hay).
 
-Lee todo el origen. Un PDF solo si el texto es extraíble (`pdftotext` o el texto del archivo). Si es un escaneo sin texto: para.
+Lee todo el origen. Un PDF solo si el texto es extraíble (`pdftotext` de poppler, o el texto embebido del archivo). Si falta `pdftotext` en el SO y el PDF no se puede leer: pide `curriculum.md` o que instalen poppler. Si es un escaneo sin texto: para.
 
 ## 2. Preguntar (no adivinar)
 

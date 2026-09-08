@@ -4,6 +4,8 @@ No inventar campos. Si un dato no está en el vault, `null` o `NECESITA_CONFIRMA
 
 ## jd.yaml
 
+Validar siempre con `cvtool validate-jd` (titulo, empresa, must_have, keywords.t1 ≥ 5).
+
 ```yaml
 titulo: string
 empresa: string

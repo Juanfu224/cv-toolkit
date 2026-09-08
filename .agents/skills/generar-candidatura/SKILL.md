@@ -38,7 +38,7 @@ PY=".venv/bin/python"
 CVTOOL="$PY scripts/cvtool.py"
 ```
 
-Usa `$CVTOOL` para validate, match, scaffold, basename, render, verify, salary, copy y tablero. Ignora líneas placeholder de `oferta/` al parsear (`Pega aquí…`, `Luego escribe…`, `Si no hay preguntas…`).
+Usa `$CVTOOL` para validate, validate-jd, match, scaffold, basename, render, verify, salary, copy y tablero. Ignora líneas placeholder de `oferta/` al parsear (`Pega aquí…`, `Luego escribe…`, `Si no hay preguntas…`).
 
 ## 0. Vault
 
@@ -56,13 +56,19 @@ Slug: `YYYY-MM-DD_empresa_puesto` (minúsculas, guiones, sin acentos). Hoy = fec
 
 Escribe `candidaturas/<slug>/oferta/` (copia de descripcion, preguntas, meta) y `candidaturas/<slug>/jd.yaml` según [schemas.md](schemas.md).
 
+```bash
+$CVTOOL validate-jd candidaturas/<slug>/jd.yaml
+```
+
+Si falla, corrige el parse (T1 ≥ 5, titulo/empresa/must_have/keywords) antes del match.
+
 T1 = título exacto + 5–8 términos literales del anuncio. Completa `oferta/meta.yaml` si puedes extraer empresa/puesto/url.
 
 Headline: copia el título de la oferta solo si describe al candidato (`base/perfil.yaml` → `titulos_defendibles`). Nunca Senior, Arquitecto, Lead, Manager.
 
 ## 2. Empresa → `empresa.md`
 
-Si hay empresa o URL, busca 3 hechos reales (producto, stack público, noticia) con fuente. Sin fuente: `sin_hechos_verificables: true`. No inventes cultura ni premios.
+Si hay empresa o URL, busca 3 hechos reales (producto, stack público, noticia) con fuente. Sin fuente: `sin_hechos_verificables: true`. No inventes cultura ni premios. Estructura orientativa: `plantillas/empresa.md.j2`.
 
 ## 3. Match (sin LLM)
 
@@ -74,7 +80,14 @@ $CVTOOL match --jd candidaturas/<slug>/jd.yaml \
 
 ## 4. Go / no-go
 
-Si `resultado: no_aplicar` y el usuario no ha dicho que fuerce: **para**, enseña `motivos`, no generes CV. Si fuerza: `forzar: true` y sigue.
+Si `resultado: no_aplicar` y el usuario no ha dicho que fuerce: **para**, enseña `motivos`, no generes CV. Si fuerza: vuelve a correr el match con `--forzar` y sigue:
+
+```bash
+$CVTOOL match --jd candidaturas/<slug>/jd.yaml \
+  --out candidaturas/<slug>/gaps.yaml \
+  --veredicto candidaturas/<slug>/veredicto.yaml \
+  --forzar
+```
 
 Familia: elige un `id` de `base/familias.yaml` según título y T1 (`titulos_tipicos`). Si ninguna encaja, pregunta. No asumas familias que no estén en el vault.
 
@@ -134,7 +147,7 @@ Si `verify` falla, no copies a `cv/`. Si la oferta pide docx, el archivo de env�
 
 ## 9. Presentación, respuestas, entrevista
 
-- `presentacion.md`: 3 párrafos, 250–400 palabras, listo para pegar (sin títulos markdown). 1) por qué esta empresa (hecho de `empresa.md`), 2) un ejemplo del CV adaptado, 3) CTA. Cero clichés de la lista negra.
+- `presentacion.md`: 3 párrafos, 250–400 palabras, listo para pegar (sin títulos markdown). Usa `plantillas/presentacion.md.j2` como guía: 1) por qué esta empresa (hecho de `empresa.md`), 2) un ejemplo del CV adaptado, 3) CTA. Cero clichés de la lista negra.
 - `respuestas.md`: solo si `oferta/preguntas.md` tiene preguntas reales. Escribe `candidaturas/<slug>/respuestas_data.yaml` con clave `respuestas` (cada ítem: `pregunta`, `respuesta`, `limite` opcional, `fuente`, `necesita_confirmacion`) y renderiza:
 
 ```bash
@@ -143,7 +156,7 @@ $CVTOOL respuestas --data candidaturas/<slug>/respuestas_data.yaml \
 ```
 
 Knockouts primero. Preaviso desde `base/constraints.yaml`. Salario: `$CVTOOL salary --familia <id> [--oferta-min N] [--oferta-max N]` y usa el `texto` (si imprime `NECESITA_CONFIRMACION`, no inventes cifra). Si falta otro hecho: `NECESITA_CONFIRMACION`.
-- `entrevista.md`: headline enviado, evidencias STAR usadas (ids), 5 talking points, gaps que no debe fingir.
+- `entrevista.md`: sigue `plantillas/entrevista.md.j2` — headline enviado, evidencias STAR usadas (ids), 5 talking points, gaps que no debe fingir.
 - `analisis.md`: familia, score T1, T1 missing, riesgos.
 - `meta.yaml` de la candidatura: `listo_para_enviar: false`.
 

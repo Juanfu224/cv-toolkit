@@ -1,7 +1,7 @@
 # SPEC.md — CV Toolkit
 
-**Versión:** 0.1 — 2026-09-08
-**Estado:** Borrador
+**Versión:** 0.2 — 2026-09-08
+**Estado:** Aprobado
 
 > Contrato de dominio inmutable durante una tarea activa. El código se deriva de aquí, no al revés.
 > Cambios: nueva sección y/o bump de versión **entre** tareas. Criterios de una tarea = petición + sección relevante.
@@ -13,10 +13,10 @@ Herramienta local para adaptar un CV ATS de una columna a cada oferta laboral a 
 
 ### Objetivos funcionales
 1. Inicializar y validar un vault inmutable en `base/` desde CV/presentación en `base/origen/`.
-2. Parsear una oferta en `oferta/`, hacer match determinista (`cvtool match`) y emitir veredicto go/no-go.
+2. Parsear una oferta en `oferta/`, validar `jd.yaml` (`cvtool validate-jd`), hacer match determinista (`cvtool match`) y emitir veredicto go/no-go (`aplicar` / `aplicar_con_reservas` / `no_aplicar`; `--forzar` solo marca HITL).
 3. Generar pack ATS (PDF + DOCX), presentación, respuestas y briefing en `candidaturas/<slug>/` y copiar la última generación a `cv/`.
 4. Registrar estado de envío en `candidaturas/tablero.yaml` tras acción humana.
-5. CLI unificada: `scripts/cvtool.py` (doctor, match, render, verify, salary, tablero, copy, respuestas, basename, scaffold, test).
+5. CLI unificada: `scripts/cvtool.py` (doctor, status, init, validate, validate-jd, scaffold, match, render, verify, copy, salary, respuestas, basename, tablero, test) y `scripts/demo_smoke.sh`.
 
 ### Objetivos no funcionales
 - Latencia p95: N/A (CLI local batch)
@@ -64,8 +64,8 @@ usuario → oferta/ + base/ → skills → scripts/cvtool.py → candidaturas/<s
 ### Enums / máquinas de estado
 | Máquina | Estados | Transiciones legales | Ilegales |
 |---|---|---|---|
-| veredicto | aplicar, no_aplicar (+ forzar) | match → veredicto; forzar solo con HITL | Generar CV tras `no_aplicar` sin fuerza |
-| tablero | (estados que gestione `cvtool tablero`) | registrar envío / actualización humana | Auto-marcar enviado sin confirmación |
+| veredicto | aplicar, aplicar_con_reservas, no_aplicar (+ forzar HITL) | match → veredicto; forzar solo con HITL explícito (`cvtool match --forzar`) | Generar CV tras `no_aplicar` sin fuerza |
+| tablero | borrador, listo, enviada, entrevista, oferta, rechazada, descartada | registrar envío / actualización humana; `listo`/`enviada` pone `meta.listo_para_enviar: true` | Auto-marcar enviado sin confirmación |
 
 ### Persistencia
 - Motor: archivos YAML/Markdown en disco
@@ -84,9 +84,9 @@ Contrato CLI (observable): `scripts/cvtool.py` subcomandos documentados en `-h` 
 ## 5. Flujos
 
 1. **Inicializar base:** CV en `base/origen/` → skill `inicializar-base` → YAML en `base/` → `scaffold` + `doctor`. Sin inventar.
-2. **Generar candidatura:** oferta en `oferta/` → parse `jd.yaml` → `match` → go/no-go → `plan.yaml` → `cv.yaml` → render PDF/DOCX → verify → presentación/respuestas/entrevista → copy a `cv/` → entrada tablero.
+2. **Generar candidatura:** oferta en `oferta/` → parse `jd.yaml` → `cvtool validate-jd` → `match` → go/no-go → `plan.yaml` → `cv.yaml` → render PDF/DOCX → verify → presentación/respuestas/entrevista → copy a `cv/` → entrada tablero.
 3. **Actualizar base:** hechos nuevos explícitos → skill `actualizar-base` solo sobre `base/`.
-4. **Registrar envío:** humano confirma → skill `registrar-envio` actualiza tablero.
+4. **Registrar envío:** humano confirma → skill `registrar-envio` actualiza tablero y `meta.listo_para_enviar`.
 
 ## 6. No funcionales detallados
 
@@ -100,9 +100,11 @@ Qué **debe fallar** si se rompe el contrato:
 
 | Contrato | Test / comando |
 |---|---|
-| CLI y match | `scripts/cvtool.py test` / `.github/workflows/ci.yml` |
+| CLI y match / validate-jd | `scripts/cvtool.py test` / `.github/workflows/ci.yml` |
 | Vault vacío / inválido | `cvtool validate` |
+| JD inválido | `cvtool validate-jd` |
 | PDF ATS | `cvtool verify` |
+| E2E ejemplos | `tests/test_e2e_ejemplos.py` (vault-minimo + oferta-demo) |
 | Política de agentes | `sh scripts/verify-agent-policy.sh` |
 
 Cobertura mínima de transiciones de estado: `no_aplicar` sin fuerza no genera CV; con fuerza continúa.

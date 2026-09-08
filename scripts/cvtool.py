@@ -115,7 +115,13 @@ def cmd_match(args: argparse.Namespace) -> int:
         cmd.extend(["--veredicto", str(args.veredicto)])
     if args.base:
         cmd.extend(["--base", str(args.base)])
+    if args.forzar:
+        cmd.append("--forzar")
     return _run(cmd)
+
+
+def cmd_validate_jd(args: argparse.Namespace) -> int:
+    return _run([PY, str(SCRIPTS / "validate_jd.py"), str(args.jd)])
 
 
 def cmd_copy(args: argparse.Namespace) -> int:
@@ -246,6 +252,14 @@ def main() -> int:
     p_match.add_argument("--out", type=Path)
     p_match.add_argument("--veredicto", type=Path)
     p_match.add_argument("--base", type=Path)
+    p_match.add_argument(
+        "--forzar",
+        action="store_true",
+        help="Marca forzar:true tras HITL (no cambia el resultado del match)",
+    )
+
+    p_vjd = sub.add_parser("validate-jd", help="Valida jd.yaml (claves + T1 mínimo)")
+    p_vjd.add_argument("jd", type=Path)
 
     p_copy = sub.add_parser("copy", help="Copia la candidatura a cv/")
     p_copy.add_argument("--from-dir", required=True, type=Path)
@@ -285,6 +299,7 @@ def main() -> int:
 
     dispatch = {
         "validate": cmd_validate,
+        "validate-jd": cmd_validate_jd,
         "render": cmd_render,
         "match": cmd_match,
         "copy": cmd_copy,

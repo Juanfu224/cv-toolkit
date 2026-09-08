@@ -1,0 +1,13 @@
+# {{ empresa | default("Empresa") }}
+
+sin_hechos_verificables: {{ sin_hechos_verificables | default(true) | lower }}
+
+{% if hechos %}
+## Hechos (máx. 3, con fuente)
+
+{% for h in hechos %}
+- {{ h.hecho }} — fuente: {{ h.fuente }}
+{% endfor %}
+{% else %}
+No hay hechos verificables con URL. No inventar cultura ni premios.
+{% endif %}

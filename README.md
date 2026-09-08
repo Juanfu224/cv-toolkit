@@ -26,13 +26,19 @@ sudo apt install libpango-1.0-0 libcairo2 libgdk-pixbuf-2.0-0 gcc python3-dev
 brew install pango cairo gdk-pixbuf
 ```
 
+PDF como origen del CV: instala `pdftotext` (poppler) si usas `curriculum.pdf` en lugar de `.md`.
+
 1. Copia tu CV a [`base/origen/curriculum.md`](base/origen/curriculum.md) (o PDF con texto seleccionable).
 2. En tu agente: **inicializa mi base**.
 3. Pega la oferta en [`oferta/descripcion.md`](oferta/descripcion.md) → **genera candidatura**.
 4. Envía tú el PDF/DOCX de `cv/` o `candidaturas/…`.
 5. Di **registrar envío**.
 
-¿Sin CV a mano? Prueba con datos ficticios: [`ejemplos/`](ejemplos/README.md).
+¿Sin CV a mano? Corre el smoke sin LLM o usa [`ejemplos/`](ejemplos/README.md):
+
+```bash
+sh scripts/demo_smoke.sh
+```
 
 
 ## Con cualquier agente
@@ -42,12 +48,16 @@ Abre este repo en Cursor, Claude Code, Codex u otro runtime que lea [`AGENTS.md`
 | Artefacto | Rol |
 |---|---|
 | [`AGENTS.md`](AGENTS.md) | Router (qué skill cargar) |
-| [`.agents/skills/`](.agents/skills/) | Recetas (Agent Skills) |
+| [`.agents/skills/`](.agents/skills/) | Recetas de producto (Agent Skills) |
 | [`SPEC.md`](SPEC.md) | Contrato de dominio |
 | [`SHIELD.md`](SHIELD.md) | Hard stops / PII / no autoenviar |
 | [`CLAUDE.md`](CLAUDE.md) | Puntero `@AGENTS.md` |
 
-Cursor y Claude descubren las mismas skills vía symlink a `.agents/skills/`.
+**Sin Cursor / Claude (Codex, ChatGPT, otro):** abre [`AGENTS.md`](AGENTS.md), elige la frase de la tabla y **lee/pega** el archivo `.agents/skills/<nombre>/SKILL.md` en el chat. No esperes que el IDE cargue skills solo.
+
+Cursor y Claude descubren las mismas skills vía symlink a `.agents/skills/`. En Windows: `git config core.symlinks true` + Developer Mode, o clona donde Git respete symlinks.
+
+Skills `epic-workflow` y `shield-security-gate` son para **desarrollar el kit**, no para candidaturas diarias.
 
 
 ## Frases al agente
@@ -59,7 +69,7 @@ Cursor y Claude descubren las mismas skills vía symlink a `.agents/skills/`.
 | Ya enviaste | **registrar envío** |
 | Cambió un hecho | **actualizar base** |
 
-Si el veredicto es `no_aplicar`, para; puedes forzar.
+Si el veredicto es `no_aplicar`, el agente para. Si tú fuerzas: `cvtool match … --forzar` solo pone `forzar: true` (HITL); **no cambia** `resultado`. El agente sigue el pipeline pese a `no_aplicar`.
 
 
 ## Qué obtienes
@@ -96,9 +106,12 @@ El PDF no sustituye el perfil de InfoJobs u otros portales.
 .venv/bin/python scripts/cvtool.py verify
 .venv/bin/python scripts/cvtool.py tablero list
 .venv/bin/python scripts/cvtool.py test
+sh scripts/demo_smoke.sh
 ```
 
-Resto: `cvtool -h` (`match`, `copy`, `salary`, `respuestas`, `basename`, …).
+Resto: `cvtool -h` (`match`, `validate-jd`, `copy`, `salary`, `respuestas`, `basename`, `init`, …).
+
+Antes del match: `cvtool validate-jd path/jd.yaml`. Tras HITL en `no_aplicar`: `cvtool match … --forzar` (marca HITL; no flip del veredicto).
 
 `render --familia` pisa `cv/` con el default. El PDF de una oferta vive en `candidaturas/<slug>/`.
 
@@ -108,8 +121,9 @@ Resto: `cvtool -h` (`match`, `copy`, `salary`, `respuestas`, `basename`, …).
 | Síntoma | Qué hacer |
 |---|---|
 | WeasyPrint / Pango | Libs del SO arriba + `cvtool doctor` |
+| PDF origen sin texto | Instala `pdftotext` o usa `curriculum.md` |
 | Vault vacío | CV en `base/origen/` → **inicializa mi base** |
-| `no_aplicar` | Lee `veredicto.yaml`; fuerza solo si aceptas el gap |
+| `no_aplicar` | Lee `veredicto.yaml`; fuerza solo si aceptas el gap (`--forzar`) |
 | PDF > 1 página | Recorta `cv.yaml` y vuelve a renderizar |
 
 Agente: [`AGENTS.md`](AGENTS.md). Gobernanza: [`SHIELD.md`](SHIELD.md) · [`SPEC.md`](SPEC.md).

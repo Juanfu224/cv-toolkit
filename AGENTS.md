@@ -20,7 +20,15 @@ Raíz del producto: carpeta con `base/` y `oferta/`. Python: `.venv/bin/python` 
 | actualizar base | `.agents/skills/actualizar-base/SKILL.md` |
 | registrar envío | `.agents/skills/registrar-envio/SKILL.md` |
 
-CLI: `scripts/cvtool.py` (doctor, match, render, verify, salary, tablero, copy, respuestas, basename). Schemas: `.agents/skills/generar-candidatura/schemas.md`.
+CLI: `scripts/cvtool.py` — doctor, status, init, validate, validate-jd, scaffold, match (`--forzar`), render, verify, copy, salary, respuestas, basename, tablero, test.
+Schemas: `.agents/skills/generar-candidatura/schemas.md`.
+
+## Subagentes
+
+| Uso | Path |
+|---|---|
+| Suites / builds ruidosos | `.agents/agents/test-runner.md` |
+| Recorte de payloads MCP | `.agents/agents/mcp-analyzer.md` |
 
 ## Arranque (antes de escribir código)
 

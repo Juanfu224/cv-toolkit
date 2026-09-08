@@ -1,0 +1,23 @@
+# Briefing de entrevista — {{ puesto }} @ {{ empresa }}
+
+## Headline enviado
+
+{{ headline }}
+
+## Evidencias STAR usadas
+
+{% for ev in evidencias %}
+- `{{ ev.id }}`: {{ ev.resumen }}
+{% endfor %}
+
+## Talking points (5)
+
+{% for tp in talking_points %}
+{{ loop.index }}. {{ tp }}
+{% endfor %}
+
+## Gaps — no fingir
+
+{% for g in gaps_no_fingir %}
+- {{ g }}
+{% endfor %}

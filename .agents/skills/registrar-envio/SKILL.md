@@ -49,7 +49,7 @@ El script calcula seguimiento a +7 días. Si el usuario pide otra fecha, pásala
 
 Otros estados: mismo comando con `--estado entrevista|oferta|rechazada|descartada`.
 
-Si existe `candidaturas/<slug>/meta.yaml`, pon `listo_para_enviar: true` cuando confirmen que el PDF/DOCX era el correcto (`listo` o `enviada`).
+Si existe `candidaturas/<slug>/meta.yaml`, `tablero set` con estado `listo` o `enviada` pone solo `listo_para_enviar: true`. No hace falta editar `meta.yaml` a mano.
 
 ## 3. Chat
 

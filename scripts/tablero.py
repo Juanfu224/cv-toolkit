@@ -7,7 +7,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import dump_yaml, load_yaml
-from paths import TABLERO
+from paths import CANDIDATURAS, TABLERO
 
 ESTADOS = (
     "borrador",
@@ -18,6 +18,22 @@ ESTADOS = (
     "rechazada",
     "descartada",
 )
+
+LISTO_PARA_ENVIAR_ESTADOS = frozenset({"listo", "enviada"})
+
+
+def sync_meta_listo(slug: str, estado: str, candidaturas_dir: Path | None = None) -> None:
+    """Actualiza listo_para_enviar en candidaturas/<slug>/meta.yaml si existe."""
+    root = candidaturas_dir or CANDIDATURAS
+    meta_path = root / slug / "meta.yaml"
+    if not meta_path.exists():
+        return
+    meta = load_yaml(meta_path)
+    if not isinstance(meta, dict):
+        return
+    meta["listo_para_enviar"] = estado in LISTO_PARA_ENVIAR_ESTADOS
+    dump_yaml(meta_path, meta)
+    print(f"meta listo_para_enviar={meta['listo_para_enviar']} → {meta_path}")
 
 
 def load_tablero(path: Path | None = None) -> dict:
@@ -68,6 +84,7 @@ def upsert(
     if notas is not None:
         row["notas"] = notas
     save_tablero(data, path)
+    sync_meta_listo(slug, estado)
     return row
 
 

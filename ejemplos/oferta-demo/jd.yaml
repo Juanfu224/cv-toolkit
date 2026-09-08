@@ -1,0 +1,34 @@
+titulo: Desarrollador web junior
+empresa: Acme Demo SL
+ciudad: null
+modalidad: remoto
+seniority: junior
+url: null
+formato_pedido: pdf
+must_have:
+  - HTML
+  - CSS
+  - JavaScript
+  - TypeScript
+  - Git
+nice_to_have:
+  - PHP
+keywords:
+  t1:
+    - Desarrollador web junior
+    - HTML
+    - CSS
+    - JavaScript
+    - TypeScript
+    - Angular
+    - APIs REST
+    - SQL
+  t2:
+    - PostgreSQL
+    - Git
+  t3: []
+knockouts: []
+riesgos: []
+anios_experiencia_min: 0
+certificaciones_obligatorias: []
+preguntas: []
