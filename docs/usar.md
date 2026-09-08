@@ -27,7 +27,7 @@ PDF como origen del CV: instala `pdftotext` (poppler) si usas `curriculum.pdf` e
 
 ## Primer uso
 
-1. CV en [`base/origen/`](../base/origen/) (`curriculum.md` preferido).
+1. CV en [`base/origen/`](../base/origen/) (`curriculum.md` preferido). Si tienes presentación (carta o bio), `presentacion.md` en el mismo sitio.
 2. **inicializa mi base** (agente).
 3. Oferta en [`oferta/descripcion.md`](../oferta/descripcion.md) → **genera candidatura**.
 4. Revisa `cv/` y el pack en `candidaturas/YYYY-MM-DD_…/`.
@@ -37,10 +37,10 @@ Sin CV propio: [`ejemplos/`](../ejemplos/README.md) o `sh scripts/demo_smoke.sh`
 
 ## Bucle diario
 
-1. Pega la oferta nueva en `oferta/` (pisar el buzón está bien).
+1. Pega la oferta nueva en `oferta/` (pisar el buzón está bien) o da una URL pública de Greenhouse/Ashby/Lever.
 2. **genera candidatura**.
-3. Revisa veredicto, PDF/DOCX y presentación.
-4. Envía al portal (InfoJobs, LinkedIn, email…).
+3. Revisa veredicto, factcheck, PDF/DOCX y presentación. **Aprueba, edita o rechaza** antes de que se copie a `cv/`.
+4. Envía al portal (InfoJobs, LinkedIn, email…). El outreach es un borrador: lo envías tú.
 5. **registrar envío**.
 
 Si cambió un hecho real (salario, proyecto, skill): **actualizar base** antes de la siguiente oferta.
@@ -66,7 +66,8 @@ Si tú fuerzas pese a `no_aplicar`:
 ## Qué enviar al portal
 
 - PDF/DOCX de `cv/` (última generación) o del pack en `candidaturas/<slug>/`.
-- Carta: `cv/presentacion.md` (o la del pack).
+- Carta: `cv/presentacion.md` (≤250 palabras) o la del pack.
+- Outreach (opcional): `cv/outreach.md` — lo envías tú; el agente no publica.
 - El PDF **no** sustituye el perfil de InfoJobs u otros portales: rellena el formulario del portal aparte.
 
 ## ATS y límites
@@ -105,7 +106,7 @@ Skills `epic-workflow` y `shield-security-gate` son para **desarrollar el kit**,
 .venv/bin/python scripts/cvtool.py tablero list
 ```
 
-Resto: `cvtool -h` (`scaffold`, `match`, `pack`, `validate-jd`, `render`, `copy`, `salary`, `respuestas`, `basename`, `init`, `test`, …).
+Resto: `cvtool -h` (`scaffold`, `match`, `pack`, `ingest-jd` solo HTTPS público, `factcheck`, `validate-jd`, `render`, `copy`, `salary`, `respuestas`, `basename`, `init`, `test`, …).
 
 Antes del match: `cvtool validate-jd path/jd.yaml`. Tras HITL: `cvtool match … --forzar`.
 
@@ -120,6 +121,7 @@ Antes del match: `cvtool validate-jd path/jd.yaml`. Tras HITL: `cvtool match …
 | Vault vacío | CV en `base/origen/` → **inicializa mi base** |
 | `no_aplicar` | Lee `veredicto.yaml`; fuerza solo si aceptas el gap (`--forzar`) |
 | PDF > 1 página | `cvtool pack --cv … --out … --gaps …` y vuelve a `render`/`verify` |
+| `factcheck` no ok | Quita la métrica/tech inventada; no copies a `cv/` |
 
 ## FAQ
 

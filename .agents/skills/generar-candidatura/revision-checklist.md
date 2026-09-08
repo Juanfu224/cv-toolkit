@@ -8,13 +8,15 @@ Busca un motivo para descartar. Si hay objeción grave, corrige solo ese bloque 
 - Número, %, o métrica que no está en `base/evidencias.yaml`
 - Tecnología, empresa o fecha que no está en `base/`
 - Verbo débil: responsable de, colaboré en, ayudé a, me encargué de
-- Cliché de IA: apasionado por, excelentes habilidades, me permito presentar, orientado a resultados, dinámico entorno, altamente motivado
+- Cliché de IA: apasionado por, excelentes habilidades, me permito presentar, orientado a resultados, dinámico entorno, altamente motivado, I am thrilled to apply
 - Keyword stuffing (el mismo T1 más de 3 veces fuera de contexto)
 - Headline que no está en `titulos_defendibles` ni es el título de la oferta de forma honesta
 - Presentación sin un hecho de `empresa.md` cuando ese archivo sí tiene hechos
+- Presentación >250 palabras u outreach >80 palabras
+- Outreach que nombra un hiring manager no presente en el JD o `oferta/meta.yaml`
 - Skill formativa en el CV si la oferta no la nombra
 - Inconsistencia de fechas con el vault
 
-## Lista negra (prohibido en CV, presentación y respuestas)
+## Lista negra (prohibido en CV, presentación, respuestas y outreach)
 
-apasionado por, excelentes habilidades, me permito presentar, orientado a resultados, altamente motivado, destacado profesional, sinergias, robusto ecosistema, leveraged, spearheaded
+apasionado por, excelentes habilidades, me permito presentar, orientado a resultados, altamente motivado, destacado profesional, sinergias, robusto ecosistema, leveraged, spearheaded, I am thrilled to apply

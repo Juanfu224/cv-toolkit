@@ -5,6 +5,7 @@ No inventar campos. Si un dato no está en el vault, `null` o `NECESITA_CONFIRMA
 ## jd.yaml
 
 Validar siempre con `cvtool validate-jd` (titulo, empresa, must_have, keywords.t1 ≥ 5).
+Ingesta opcional: `cvtool ingest-jd --url …` (hosts públicos) o `--from-file` (fixtures). Host no allowlist → pegar texto.
 
 ```yaml
 titulo: string
@@ -51,7 +52,7 @@ t1_en_resumen: [string]
 t1_en_skills: [string]
 t1_en_bullets: [string]
 orden_secciones: [string]
-mitigacion_gaps: string
+mitigacion_gaps: string    # solo presentación/respuestas/outreach; nunca el CV
 ```
 
 ## cv.yaml
@@ -78,6 +79,7 @@ t1_missing_bullets: [string]
 ```
 
 `key` usa prefijos `skill:` o `bullet:<evidencia_id>`.
+
 ## meta.yaml (candidatura)
 
 ```yaml
@@ -88,6 +90,19 @@ familia: string
 veredicto: aplicar | aplicar_con_reservas | no_aplicar
 listo_para_enviar: false
 formato_envio: pdf | docx
+```
+
+## meta.yaml (oferta/)
+
+```yaml
+empresa: string | null
+puesto: string | null
+url: string | null
+ciudad: string | null
+fuente: string | null          # greenhouse | ashby | lever | texto
+fecha: YYYY-MM-DD | null
+formato_pedido: pdf | docx | cualquiera
+equipo_receptor: string | null # solo si el anuncio o el humano lo nombra
 ```
 
 ## familias.yaml (vault)
@@ -105,6 +120,23 @@ familias:
 
 LinkedIn y GitHub en `perfil.contacto` son opcionales.
 
+## evidencias.yaml (vault)
+
+`confianza` es opcional (`alta` | `media` | `pendiente`). No inventar métricas.
+
+```yaml
+evidencias:
+  - id: string
+    rol: string
+    familias: [string]
+    keywords: [string]
+    situacion: string
+    accion: string
+    resultado: string
+    fuente: string
+    confianza: alta | media | pendiente   # opcional
+```
+
 ## respuestas.md
 
 Escribe `respuestas_data.yaml` y renderiza con `cvtool respuestas`:
@@ -120,6 +152,41 @@ respuestas:
 
 El helper rellena `caracteres` y aplica `plantillas/respuestas.md.j2`.
 
-## empresa.md
+Render de empresa: `cvtool empresa --data empresa.yaml --out empresa.md`.
 
-Máximo 3 hechos con fuente URL. Si no hay fuente, el archivo dice `sin_hechos_verificables: true`.
+## empresa.yaml
+
+Máximo 3 hechos con fuente URL. Cultura, premios o nombre de hiring manager **prohibidos** sin cita en el JD o `oferta/meta.yaml`. Render: `plantillas/empresa.md.j2`.
+
+```yaml
+empresa: string
+sin_hechos_verificables: bool
+hechos:
+  - hecho: string
+    fuente: string   # URL http(s)
+stack_publico: [string]          # solo si aparece en fuente
+equipo_receptor: string | null   # literal del JD o meta humana
+```
+
+Si no hay fuente: `sin_hechos_verificables: true` y `hechos: []`.
+
+## outreach.md
+
+Borrador ≤80 palabras, 1 CTA, 1 destinatario. El humano copia a LinkedIn/email. Guía: `plantillas/outreach.md.j2`.
+
+## factcheck.yaml
+
+Salida de `cvtool factcheck` (sin PII de contacto):
+
+```yaml
+ok: bool
+confianza: float   # claims soportados / total; 1.0 si no hay claims
+presentacion_palabras: int | null
+outreach_palabras: int | null
+violaciones:
+  - tipo: metrica | tecnologia | empleador | longitud | empresa
+    dato: string
+    detalle: string
+```
+
+`ok: false` (métrica huérfana, `confianza < 1.0`, carta >250 palabras, outreach >80) → no `copy`.

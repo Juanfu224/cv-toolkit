@@ -2,7 +2,7 @@
 
 Hechos inmutables del candidato. El kit **no inventa** métricas, empresas ni tecnologías.
 
-1. Pon tu CV en [`origen/`](origen/) (`curriculum.md` preferido, o PDF con texto).
+1. Pon tu CV en [`origen/`](origen/) (`curriculum.md` preferido, o PDF con texto). Si tienes presentación, `presentacion.md` en el mismo sitio.
 2. Di **inicializa mi base** en tu agente.
 3. Luego: `.venv/bin/python scripts/cvtool.py scaffold && .venv/bin/python scripts/cvtool.py doctor`
 

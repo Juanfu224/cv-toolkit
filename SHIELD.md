@@ -18,6 +18,9 @@ Enforcement: política administrada / OS / sandbox > hooks (Cursor: `failClosed`
 - Editar `base/` o `base/origen/` fuera de los skills `inicializar-base` o `actualizar-base`.
 - Generar CV/pack tras `veredicto: no_aplicar` sin fuerza explícita del humano.
 - Enviar o publicar candidaturas en portales (InfoJobs u otros) desde el agente.
+- Login, CAPTCHA, sesión o scrape de Greenhouse, Ashby, Lever, Workday, LinkedIn u otros; `ingest-jd` solo GET a hosts allowlist.
+- Embeddings / índice vectorial del vault (`base/`) o de artefactos con PII.
+- Copiar a `cv/` con `factcheck.yaml` `ok: false` o sin aprobación HITL del pack.
 - Pisar `candidaturas/` de otra fecha; tratar `oferta/` como historial o `cv/` como vault.
 
 ### 1.2 FS / Git
@@ -47,6 +50,8 @@ Antes de la acción: `{accion, impacto, pregunta}` → afirmación explícita. H
 | Acción | Validación |
 |---|---|
 | Forzar candidatura tras `no_aplicar` | Humano acepta el gap explícitamente |
+| GET ATS público (`ingest-jd`) | Host allowlist; sin login; red del IDE = HITL |
+| Copiar pack a `cv/` | `factcheck` ok + aprobación explícita (aprobar / editar / rechazar) |
 | Migración PII / cambio de contacto en vault | Skill `actualizar-base` + hecho verificable |
 | Nuevo webhook (si aplica) | Firma del SPEC + idempotencia + 4xx opaco |
 | Job de estado | Idempotencia + transacción |
@@ -83,6 +88,7 @@ STOP + reportar: CB-01 suprimir validación; CB-02 regresiones de tests; CB-03 m
 - `.scratch/` no contiene PII. Purge al cerrar tarea.
 - Vault `base/` es copia privada del usuario; no publicarlo ni pegarlo en issues públicos.
 - Transferencias a portales: solo el humano; allowlist de destinos de producto = N/A (sin API).
+- `ingest-jd`: GET HTTPS a hosts ATS allowlist; no cookies, no tokens. Host fuera de lista → pegar texto.
 
 ## 6. Webhooks (si el producto los tiene)
 
@@ -92,10 +98,11 @@ N/A — este producto no expone webhooks.
 
 - Identidad no humana por tarea; TTL corto; revocación al CB/sessionEnd.
 - Tools: allowlist por rol en prosa (`AGENTS.md`). Planificador sin Write/Shell mutante.
-- Egress: deny default; allowlist PyPI en `.cursor/sandbox.json`. Declarar el modo de red del IDE (`Only` / `+ Defaults` / `Allow All`); no afirmar deny-all. Claude: `sandbox.enabled` en proyecto. No versionar `failIfUnavailable` (tumba clones; hard-gate user/managed/CLI). `strictAllowlist` en settings de repo no tiene efecto.
-- Regla de 2 (política local, no cumplimiento AEPD): `untrusted_in=true` (ofertas), `sensitive_access=true` (PII en `base/`), `auto_act=false` (envío humano al portal). Par 1+2 con garantía `auto_act=false` + HITL en efecto externo. Triple concurrente → CB-R2 STOP.
+- Egress: deny default; allowlist PyPI en `.cursor/sandbox.json`. `ingest-jd` reconstruye GET HTTPS a hosts ATS públicos (Greenhouse / Ashby / Lever); sin credenciales, sin puertos raros, sin reenviar la URL cruda. Declarar el modo de red del IDE (`Only` / `+ Defaults` / `Allow All`); no afirmar deny-all. Claude: `sandbox.enabled` en proyecto. No versionar `failIfUnavailable` (tumba clones; hard-gate user/managed/CLI). `strictAllowlist` en settings de repo no tiene efecto.
+- Regla de 2 (política local, no cumplimiento AEPD): `untrusted_in=true` (ofertas), `sensitive_access=true` (PII en `base/`), `auto_act=false` (envío humano al portal y al outreach). Par 1+2 con garantía `auto_act=false` + HITL en efecto externo. Triple concurrente → CB-R2 STOP.
+- Prohibido embeddings del vault. El match es léxico (`cvtool match`); aliases = transferible honesto.
 
 ## 8. Autocuración vs parada
 
-Autonomía: lint, format, test del nodo, `cvtool` doctor/validate/match/pack/render/verify sobre paths del rol.
-Parada: Hard Stops, CB, Intent Gates, desvío de SPEC, `no_aplicar` sin fuerza.
+Autonomía: lint, format, test del nodo, `cvtool` doctor/validate/match/pack/render/verify/factcheck e `ingest-jd --from-file` sobre paths del rol.
+Parada: Hard Stops, CB, Intent Gates, desvío de SPEC, `no_aplicar` sin fuerza, factcheck no ok, copy sin HITL.

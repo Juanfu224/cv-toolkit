@@ -17,10 +17,10 @@ python3 -m venv .venv
 
 Si `doctor` falla en PDF / WeasyPrint → [Instalación](docs/usar.md#instalación).
 
-1. Copia tu CV a [`base/origen/curriculum.md`](base/origen/curriculum.md) (o PDF con texto seleccionable).
+1. Copia tu CV a [`base/origen/curriculum.md`](base/origen/curriculum.md) (o PDF con texto seleccionable). Si tienes presentación (carta o bio), déjala también en [`base/origen/presentacion.md`](base/origen/presentacion.md).
 2. En tu agente: **inicializa mi base**.
-3. Pega la oferta en [`oferta/descripcion.md`](oferta/descripcion.md) → **genera candidatura**.
-4. Envía tú el PDF/DOCX de `cv/` o `candidaturas/…`.
+3. Pega la oferta en [`oferta/descripcion.md`](oferta/descripcion.md) (o una URL pública Greenhouse/Ashby/Lever) → **genera candidatura**.
+4. Revisa, **aprueba** el pack y envía tú el PDF/DOCX de `cv/` o `candidaturas/…`.
 5. Di **registrar envío**.
 
 ¿Sin CV a mano? `sh scripts/demo_smoke.sh` o [`ejemplos/`](ejemplos/README.md).
@@ -42,8 +42,9 @@ Si `doctor` falla en PDF / WeasyPrint → [Instalación](docs/usar.md#instalaci�
 |---|---|
 | `cv/curriculum.pdf` / `.docx` | Último CV ATS |
 | `cv/CV_Nombre_Puesto_Empresa.*` | Nombre de envío |
-| `cv/presentacion.md` | Carta |
-| `candidaturas/YYYY-MM-DD_…/` | Pack congelado + briefing |
+| `cv/presentacion.md` | Carta (≤250 palabras) |
+| `cv/outreach.md` | Borrador de mensaje (tú envías) |
+| `candidaturas/YYYY-MM-DD_…/` | Pack congelado + briefing + factcheck |
 | `candidaturas/tablero.yaml` | Seguimiento |
 
 

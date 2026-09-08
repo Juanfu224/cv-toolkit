@@ -148,14 +148,50 @@ def cmd_validate_jd(args: argparse.Namespace) -> int:
 
 def cmd_copy(args: argparse.Namespace) -> int:
     dest = args.to_dir or CV_DIR
+    cmd = [
+        PY,
+        str(SCRIPTS / "copy_to_cv.py"),
+        "--from-dir",
+        str(args.from_dir),
+        "--to-dir",
+        str(dest),
+    ]
+    if args.require_factcheck:
+        cmd.append("--require-factcheck")
+    return _run(cmd)
+
+
+def cmd_ingest_jd(args: argparse.Namespace) -> int:
+    cmd = [PY, str(SCRIPTS / "ingest_jd.py")]
+    if args.url:
+        cmd.extend(["--url", args.url])
+    if args.from_file:
+        cmd.extend(["--from-file", str(args.from_file)])
+    if args.adapter:
+        cmd.extend(["--adapter", args.adapter])
+    if args.out_dir:
+        cmd.extend(["--out-dir", str(args.out_dir)])
+    return _run(cmd)
+
+
+def cmd_factcheck(args: argparse.Namespace) -> int:
+    cmd = [PY, str(SCRIPTS / "factcheck.py"), "--dir", str(args.dir)]
+    if args.base:
+        cmd.extend(["--base", str(args.base)])
+    if args.out:
+        cmd.extend(["--out", str(args.out)])
+    return _run(cmd)
+
+
+def cmd_empresa(args: argparse.Namespace) -> int:
     return _run(
         [
             PY,
-            str(SCRIPTS / "copy_to_cv.py"),
-            "--from-dir",
-            str(args.from_dir),
-            "--to-dir",
-            str(dest),
+            str(SCRIPTS / "render_empresa.py"),
+            "--data",
+            str(args.data),
+            "--out",
+            str(args.out),
         ]
     )
 
@@ -286,6 +322,31 @@ def main() -> int:
     p_copy = sub.add_parser("copy", help="Copia la candidatura a cv/")
     p_copy.add_argument("--from-dir", required=True, type=Path)
     p_copy.add_argument("--to-dir", type=Path)
+    p_copy.add_argument(
+        "--require-factcheck",
+        action="store_true",
+        help="Exige factcheck.yaml con ok: true",
+    )
+
+    p_ingest = sub.add_parser(
+        "ingest-jd",
+        help="Ingesta JD de tablero ATS público (sin login) a oferta/",
+    )
+    p_ingest.add_argument("--url")
+    p_ingest.add_argument("--from-file", type=Path)
+    p_ingest.add_argument("--adapter", choices=("greenhouse", "ashby", "lever"))
+    p_ingest.add_argument("--out-dir", type=Path)
+
+    p_fc = sub.add_parser(
+        "factcheck", help="Comprueba el pack contra el vault (cero invención)"
+    )
+    p_fc.add_argument("--dir", required=True, type=Path)
+    p_fc.add_argument("--base", type=Path)
+    p_fc.add_argument("--out", type=Path)
+
+    p_emp = sub.add_parser("empresa", help="Renderiza empresa.md desde empresa.yaml")
+    p_emp.add_argument("--data", required=True, type=Path)
+    p_emp.add_argument("--out", required=True, type=Path)
 
     p_resp = sub.add_parser("respuestas", help="Renderiza respuestas.md desde YAML")
     p_resp.add_argument("--data", required=True, type=Path)
@@ -341,6 +402,9 @@ def main() -> int:
         "render": cmd_render,
         "match": cmd_match,
         "copy": cmd_copy,
+        "ingest-jd": cmd_ingest_jd,
+        "factcheck": cmd_factcheck,
+        "empresa": cmd_empresa,
         "respuestas": cmd_respuestas,
         "verify": cmd_verify,
         "pack": cmd_pack,

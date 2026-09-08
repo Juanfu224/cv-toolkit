@@ -51,6 +51,8 @@ CI: [`.github/`](../.github/). Suites ruidosas: subagente `.agents/agents/test-r
 .venv/bin/python scripts/cvtool.py validate
 .venv/bin/python scripts/cvtool.py validate-jd path/jd.yaml
 .venv/bin/python scripts/cvtool.py match --jd path/jd.yaml --base base
+.venv/bin/python scripts/cvtool.py ingest-jd --from-file tests/fixtures/ingest/greenhouse_job.json --adapter greenhouse --out-dir /tmp/oferta
+.venv/bin/python scripts/cvtool.py factcheck --dir candidaturas/<slug> --base base
 ```
 
 Resto: `cvtool -h`. Dependencias: `pip install -r requirements.txt` en venv; nueva dep = cambio explícito de `requirements.txt`.

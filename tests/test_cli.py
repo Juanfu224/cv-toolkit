@@ -10,6 +10,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from basename import pascal_nombre, send_basename  # noqa: E402
 from common import contact_links  # noqa: E402
+from paths import ROOT, is_allowed_output  # noqa: E402
 from tablero import ESTADOS, list_rows, upsert  # noqa: E402
 
 
@@ -32,6 +33,13 @@ class ContactLinksTests(unittest.TestCase):
             contact_links({"linkedin": "https://linkedin.com/in/a", "github": None}),
             ["https://linkedin.com/in/a"],
         )
+
+
+class PathGuardTests(unittest.TestCase):
+    def test_allowed_output_repo_y_tmp(self) -> None:
+        self.assertTrue(is_allowed_output(ROOT / "oferta"))
+        self.assertTrue(is_allowed_output(Path(tempfile.gettempdir()) / "x"))
+        self.assertFalse(is_allowed_output(Path("/etc/passwd")))
 
 
 class TableroTests(unittest.TestCase):
@@ -69,6 +77,24 @@ class CvtoolHelpTests(unittest.TestCase):
         self.assertIn("doctor", proc.stdout)
         self.assertIn("respuestas", proc.stdout)
         self.assertIn("pack", proc.stdout)
+        self.assertIn("ingest-jd", proc.stdout)
+        self.assertIn("factcheck", proc.stdout)
+        self.assertIn("empresa", proc.stdout)
+
+
+class SkillContractTests(unittest.TestCase):
+    def test_generar_candidatura_hitl_factcheck_outreach(self) -> None:
+        skill = (
+            ROOT / ".agents" / "skills" / "generar-candidatura" / "SKILL.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("factcheck", skill)
+        self.assertIn("--require-factcheck", skill)
+        self.assertIn("aprobar", skill)
+        self.assertIn("rechazar", skill)
+        self.assertIn("outreach.md", skill)
+        self.assertIn("≤250", skill)
+        self.assertIn("ingest-jd", skill)
+        self.assertIn("Silencio ≠ sí", skill)
 
 
 class DoctorTests(unittest.TestCase):

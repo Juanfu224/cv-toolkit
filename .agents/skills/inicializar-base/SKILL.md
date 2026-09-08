@@ -53,7 +53,7 @@ Campos dudosos: lista `pendiente` o `NECESITA_CONFIRMACION`. No rellenes con un 
 Parte de los YAML actuales. Conserva `base/aliases.yaml` (diccionario genérico) y añade solo sinónimos que salgan del origen.
 
 - `perfil.yaml`: nombre, contacto, `headline_base`, `titulos_defendibles`, idiomas, educacion, experiencia (con `id` estable tipo `empresa-corta`), proyectos, certificaciones. Roles con `familias: [id, …]`.
-- `evidencias.yaml`: mínimo 8 STAR si el origen da para ello. Cada una: `id`, `rol` (id de experiencia o proyecto), `familias`, `keywords`, `situacion`, `accion`, `resultado`, `fuente: origen/curriculum.md`. Sin `%` ni números que no estén en el origen.
+- `evidencias.yaml`: mínimo 8 STAR si el origen da para ello. Cada una: `id`, `rol` (id de experiencia o proyecto), `familias`, `keywords`, `situacion`, `accion`, `resultado`, `fuente: origen/curriculum.md`. `confianza` opcional (`alta` / `media` / `pendiente`). Sin `%` ni números que no estén en el origen.
 - `skills.yaml`: nivel `diario` | `proyecto` | `formativo` y `familias`.
 - `familias.yaml`: por cada familia, `id`, `nombre`, `incluye_proyectos` (junior: true en desarrollo, false en soporte salvo que el usuario diga lo contrario), `salario.min/max`, `titulos_tipicos`.
 - `constraints.yaml`: ubicación, `traslado_confirmado`, preaviso, knockouts de seniority, `anios_experiencia_max_aceptados` si el usuario lo acota.
