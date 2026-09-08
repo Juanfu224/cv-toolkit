@@ -1,13 +1,38 @@
 # CV Toolkit
 
-Adapta un CV **ATS de una columna** a cada oferta, con hechos en un vault YAML y un agente de IA. **Tú envías** al portal. No autoaplica ni inventa experiencia.
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Local · no autoaplica](https://img.shields.io/badge/local-no%20autoaplica-important)](docs/usar.md)
 
-Mantén **tu copia privada**: `base/` acaba con teléfono, email e historial. Licencia: [MIT](LICENSE).
+> Adapta un CV **ATS de una columna** a cada oferta desde un vault YAML. El agente prepara el pack; **tú envías** al portal.
+
+Privacidad: `base/` contiene teléfono, email e historial — mantén **tu copia privada**.
 
 
-## Empezar
+## Qué es / Qué no es
 
-Python **3.10+**.
+| Sí | No |
+|---|---|
+| Vault de hechos + match go/no-go | Autoaplicar a InfoJobs / LinkedIn |
+| PDF/DOCX ATS 1 columna + carta + outreach | Inventar experiencia o métricas |
+| Skills del agente (`inicializa…`, `genera…`) | Subir tu vault a la nube |
+
+
+## Cómo funciona
+
+```mermaid
+flowchart LR
+  origen[CV en base/origen] --> init[inicializa mi base]
+  init --> vault[Vault YAML base/]
+  oferta[Oferta en oferta/] --> gen[genera candidatura]
+  vault --> gen
+  gen --> pack[Pack en candidaturas/]
+  pack --> human[Tú revisas y envías]
+  human --> tablero[registrar envío]
+```
+
+
+## Empezar en 5 minutos
 
 ```bash
 python3 -m venv .venv
