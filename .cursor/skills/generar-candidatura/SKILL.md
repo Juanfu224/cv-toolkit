@@ -135,7 +135,14 @@ Si `verify` falla, no copies a `cv/`. Si la oferta pide docx, el archivo de env�
 ## 9. Presentación, respuestas, entrevista
 
 - `presentacion.md`: 3 párrafos, 250–400 palabras, listo para pegar (sin títulos markdown). 1) por qué esta empresa (hecho de `empresa.md`), 2) un ejemplo del CV adaptado, 3) CTA. Cero clichés de la lista negra.
-- `respuestas.md`: solo si `oferta/preguntas.md` tiene preguntas reales. Sigue la forma de `plantillas/respuestas.md.j2` (pregunta, respuesta, caracteres / límite, fuente, `NECESITA_CONFIRMACION`). Knockouts primero. Preaviso desde `base/constraints.yaml`. Salario: `$CVTOOL salary --familia <id> [--oferta-min N] [--oferta-max N]` y usa el `texto` (si imprime `NECESITA_CONFIRMACION`, no inventes cifra). Si falta otro hecho: `NECESITA_CONFIRMACION`.
+- `respuestas.md`: solo si `oferta/preguntas.md` tiene preguntas reales. Escribe `candidaturas/<slug>/respuestas_data.yaml` con clave `respuestas` (cada ítem: `pregunta`, `respuesta`, `limite` opcional, `fuente`, `necesita_confirmacion`) y renderiza:
+
+```bash
+$CVTOOL respuestas --data candidaturas/<slug>/respuestas_data.yaml \
+  --out candidaturas/<slug>/respuestas.md
+```
+
+Knockouts primero. Preaviso desde `base/constraints.yaml`. Salario: `$CVTOOL salary --familia <id> [--oferta-min N] [--oferta-max N]` y usa el `texto` (si imprime `NECESITA_CONFIRMACION`, no inventes cifra). Si falta otro hecho: `NECESITA_CONFIRMACION`.
 - `entrevista.md`: headline enviado, evidencias STAR usadas (ids), 5 talking points, gaps que no debe fingir.
 - `analisis.md`: familia, score T1, T1 missing, riesgos.
 - `meta.yaml` de la candidatura: `listo_para_enviar: false`.

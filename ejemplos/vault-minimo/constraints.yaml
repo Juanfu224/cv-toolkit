@@ -1,0 +1,33 @@
+ubicacion:
+  ciudad: Valencia
+  provincia: Valencia
+  pais: España
+  remoto: true
+  hibrido: true
+  presencial: caso_a_caso
+  traslado_confirmado: false
+preaviso_dias: 15
+disponibilidad_inmediata: false
+salario:
+  moneda: EUR
+  periodo: anual_bruto
+  abierto_a_pactar: true
+  alinear_a_rango_publicado: true
+formatos_envio:
+- pdf
+- docx
+titulos_no_defendibles:
+- Senior
+- Arquitecto
+- Lead
+- Principal
+- Staff
+- Manager
+- Director
+knockout:
+  anios_experiencia_max_aceptados: 4
+  seniority_no_aplicar:
+  - senior
+  - lead
+  - architect
+  - manager

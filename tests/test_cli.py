@@ -54,7 +54,7 @@ class TableroTests(unittest.TestCase):
 
 
 class CvtoolHelpTests(unittest.TestCase):
-    def test_help_incluye_match_y_copy(self) -> None:
+    def test_help_incluye_match_copy_doctor_respuestas(self) -> None:
         import subprocess
 
         proc = subprocess.run(
@@ -66,6 +66,25 @@ class CvtoolHelpTests(unittest.TestCase):
         self.assertEqual(proc.returncode, 0)
         self.assertIn("match", proc.stdout)
         self.assertIn("copy", proc.stdout)
+        self.assertIn("doctor", proc.stdout)
+        self.assertIn("respuestas", proc.stdout)
+
+
+class DoctorTests(unittest.TestCase):
+    def test_doctor_en_kit_vacio_sale_cero(self) -> None:
+        import subprocess
+
+        proc = subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "cvtool.py"), "doctor"],
+            capture_output=True,
+            text=True,
+            check=False,
+            cwd=str(ROOT),
+        )
+        self.assertEqual(proc.returncode, 0)
+        self.assertIn("cvtool doctor", proc.stdout)
+        self.assertIn("siguiente:", proc.stdout)
+        self.assertIn("inicializa mi base", proc.stdout)
 
 
 if __name__ == "__main__":

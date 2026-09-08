@@ -1,0 +1,38 @@
+nombre: Alex Demo
+headline_base: Desarrollador web
+titulos_defendibles:
+- Desarrollador web
+- Desarrollador full stack
+contacto:
+  telefono: (+34) 600 000 000
+  email: alex.demo@example.com
+  ciudad: Valencia
+  pais: España
+  linkedin: https://www.linkedin.com/in/alex-demo
+  github: https://github.com/alex-demo
+idiomas:
+- idioma: Español
+  nivel: Nativo
+educacion:
+- titulo: DAW
+  centro: IES
+  fin: 2024-06
+experiencia:
+- id: rol-a
+  titulo: Desarrollador full stack
+  empresa: Empresa A
+  inicio: '2025'
+  fin: actualidad
+  actual: true
+  familias:
+  - dev
+proyectos:
+- id: proj-a
+  nombre: Proyecto A
+  url: https://github.com/alex-demo/proyecto-a
+  stack:
+  - PHP
+  - Angular
+  familias:
+  - dev
+certificaciones: []

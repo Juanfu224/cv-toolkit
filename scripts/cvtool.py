@@ -196,7 +196,30 @@ def cmd_status(_args: argparse.Namespace) -> int:
         rows = list_rows()
         enviadas = sum(1 for r in rows if r.get("estado") == "enviada")
         print(f"tablero: {len(rows)} filas, {enviadas} enviadas")
+    if code == 2:
+        print("siguiente: copia CV a base/origen/ y di «inicializa mi base»")
+    elif code == 0:
+        print("siguiente: pega una oferta en oferta/ y di «genera candidatura»")
     return 0 if code != 1 else 1
+
+
+def cmd_doctor(_args: argparse.Namespace) -> int:
+    from doctor import run_doctor
+
+    return run_doctor()
+
+
+def cmd_respuestas(args: argparse.Namespace) -> int:
+    return _run(
+        [
+            PY,
+            str(SCRIPTS / "render_respuestas.py"),
+            "--data",
+            str(args.data),
+            "--out",
+            str(args.out),
+        ]
+    )
 
 
 def main() -> int:
@@ -205,6 +228,7 @@ def main() -> int:
 
     sub.add_parser("validate", help="Valida el vault en base/")
     sub.add_parser("status", help="Resumen del vault, plantillas y tablero")
+    sub.add_parser("doctor", help="Chequeo de salud (Python, deps, WeasyPrint, vault)")
     sub.add_parser("scaffold", help="Genera cv_default_<familia>.yaml desde el vault")
     sub.add_parser("test", help="Ejecuta la suite unittest")
 
@@ -226,6 +250,10 @@ def main() -> int:
     p_copy = sub.add_parser("copy", help="Copia la candidatura a cv/")
     p_copy.add_argument("--from-dir", required=True, type=Path)
     p_copy.add_argument("--to-dir", type=Path)
+
+    p_resp = sub.add_parser("respuestas", help="Renderiza respuestas.md desde YAML")
+    p_resp.add_argument("--data", required=True, type=Path)
+    p_resp.add_argument("--out", required=True, type=Path)
 
     p_verify = sub.add_parser("verify", help="Comprueba el PDF ATS")
     p_verify.add_argument("pdf", nargs="?", type=Path)
@@ -260,12 +288,14 @@ def main() -> int:
         "render": cmd_render,
         "match": cmd_match,
         "copy": cmd_copy,
+        "respuestas": cmd_respuestas,
         "verify": cmd_verify,
         "test": cmd_test,
         "salary": cmd_salary,
         "scaffold": cmd_scaffold,
         "init": cmd_init,
         "status": cmd_status,
+        "doctor": cmd_doctor,
         "basename": cmd_basename,
         "tablero": cmd_tablero,
     }

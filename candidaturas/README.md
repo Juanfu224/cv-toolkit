@@ -1,15 +1,7 @@
-Cada carpeta `YYYY-MM-DD_empresa_puesto/` es una candidatura congelada.
+# Candidaturas
 
-Contenido esperado:
+Cada `YYYY-MM-DD_empresa_puesto/` congela una oferta (jd, cv, PDF, briefing). Índice: `tablero.yaml` (`borrador` → `listo` → `enviada`).
 
-- `jd.yaml`, `gaps.yaml`, `veredicto.yaml`, `plan.yaml`, `cv.yaml`
-- `empresa.md`, `analisis.md`, `revision.md`, `entrevista.md`
-- `oferta/` (snapshot de descripcion, preguntas, meta)
-- `curriculum.md`, `curriculum.pdf`, `curriculum.docx`
-- `CV_<NombrePascal>_Puesto_Empresa.pdf` (y `.docx`) para enviar
-- `presentacion.md`, `respuestas.md` (si hubo preguntas)
-- `meta.yaml` (`listo_para_enviar: false` hasta que revises; `true` en tablero `listo` o `enviada`)
+No edites carpetas de otra fecha. Tras enviar: **registrar envío**.
 
-El índice de seguimiento está en `tablero.yaml` (`borrador` → `listo` → `enviada`). Tras enviar, di **registrar envío**.
-
-No editar una carpeta de otra fecha. Si regeneras el mismo día, se actualiza el borrador.
+Ver [README raíz](../README.md).

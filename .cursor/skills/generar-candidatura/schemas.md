@@ -87,7 +87,18 @@ LinkedIn y GitHub en `perfil.contacto` son opcionales.
 
 ## respuestas.md
 
-Por pregunta: enunciado, respuesta lista para pegar, recuento vs límite, fuente (`cvtool salary` / `constraints.yaml` / `evidencia_id`), y `NECESITA_CONFIRMACION` si falta el hecho. Forma: `plantillas/respuestas.md.j2`.
+Escribe `respuestas_data.yaml` y renderiza con `cvtool respuestas`:
+
+```yaml
+respuestas:
+  - pregunta: string
+    respuesta: string
+    limite: int | null
+    fuente: string
+    necesita_confirmacion: bool
+```
+
+El helper rellena `caracteres` y aplica `plantillas/respuestas.md.j2`.
 
 ## empresa.md
 

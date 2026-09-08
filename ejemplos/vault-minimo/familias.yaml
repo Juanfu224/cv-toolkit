@@ -1,0 +1,12 @@
+familias:
+- id: dev
+  nombre: Desarrollo
+  incluye_proyectos: true
+  salario:
+    min: 22000
+    max: 28000
+  titulos_tipicos:
+  - desarrollador
+  - frontend
+  - backend
+  - full stack

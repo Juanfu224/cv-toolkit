@@ -75,6 +75,7 @@ WARN de `pendiente`: continúa. ERROR: corrige el YAML y repite. No toques `plan
 ```bash
 $PY scripts/cvtool.py render --familia <primera-familia>
 $PY scripts/cvtool.py verify
+$PY scripts/cvtool.py doctor
 $PY scripts/cvtool.py status
 ```
 

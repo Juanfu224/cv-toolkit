@@ -1,0 +1,41 @@
+skills:
+- nombre: HTML
+  nivel: diario
+  familias:
+  - dev
+- nombre: CSS
+  nivel: diario
+  familias:
+  - dev
+- nombre: JavaScript
+  nivel: diario
+  familias:
+  - dev
+- nombre: TypeScript
+  nivel: diario
+  familias:
+  - dev
+- nombre: Angular
+  nivel: diario
+  familias:
+  - dev
+- nombre: APIs REST
+  nivel: diario
+  familias:
+  - dev
+- nombre: PHP
+  nivel: diario
+  familias:
+  - dev
+- nombre: SQL
+  nivel: diario
+  familias:
+  - dev
+- nombre: PostgreSQL
+  nivel: diario
+  familias:
+  - dev
+- nombre: Git
+  nivel: diario
+  familias:
+  - dev

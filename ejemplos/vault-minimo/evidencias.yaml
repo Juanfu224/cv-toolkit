@@ -1,0 +1,65 @@
+evidencias:
+  - id: ev-01
+    rol: rol-a
+    familias: [dev]
+    keywords: [Angular, TypeScript, HTML, CSS, JavaScript]
+    situacion: Pantallas de una app interna
+    accion: Desarrollar interfaces con Angular y TypeScript
+    resultado: Entrega de vistas usables en entorno de prueba
+    fuente: ejemplos/vault-minimo
+  - id: ev-02
+    rol: rol-a
+    familias: [dev]
+    keywords: [APIs REST]
+    situacion: Backend de la misma app
+    accion: Mantener endpoints APIs REST
+    resultado: Contratos documentados para el frontend
+    fuente: ejemplos/vault-minimo
+  - id: ev-03
+    rol: rol-a
+    familias: [dev]
+    keywords: [SQL, PostgreSQL]
+    situacion: Consultas de listados
+    accion: Consultar datos con SQL sobre PostgreSQL
+    resultado: Listados filtrables en prueba
+    fuente: ejemplos/vault-minimo
+  - id: ev-04
+    rol: rol-a
+    familias: [dev]
+    keywords: [PHP]
+    situacion: Capa de servicio
+    accion: Implementar endpoints en PHP
+    resultado: Integración frontend-backend en local
+    fuente: ejemplos/vault-minimo
+  - id: ev-05
+    rol: rol-a
+    familias: [dev]
+    keywords: [Git]
+    situacion: Trabajo en equipo pequeño
+    accion: Versionar cambios con Git en ramas por tarea
+    resultado: Historial revisable en el repositorio de prueba
+    fuente: ejemplos/vault-minimo
+  - id: ev-06
+    rol: proj-a
+    familias: [dev]
+    keywords: [PHP, Angular]
+    situacion: Proyecto personal de portfolio
+    accion: Construir el proyecto A con PHP y Angular
+    resultado: Demo pública en GitHub
+    fuente: ejemplos/vault-minimo
+  - id: ev-07
+    rol: proj-a
+    familias: [dev]
+    keywords: [HTML, CSS]
+    situacion: Maquetación del portfolio
+    accion: Maquetar páginas responsive con HTML y CSS
+    resultado: Layout usable en móvil y escritorio
+    fuente: ejemplos/vault-minimo
+  - id: ev-08
+    rol: proj-a
+    familias: [dev]
+    keywords: [JavaScript, TypeScript]
+    situacion: Interacciones del cliente
+    accion: Añadir lógica de cliente en JavaScript y TypeScript
+    resultado: Formularios validados en el navegador
+    fuente: ejemplos/vault-minimo

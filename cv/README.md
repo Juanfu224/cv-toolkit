@@ -1,7 +1,7 @@
 # `cv/`
 
-Última generación lista para enviar: `curriculum.pdf`, `curriculum.docx`, `presentacion.md` y el archivo `CV_Nombre_Puesto_Empresa.*`.
+Última generación para enviar (`curriculum.pdf`, `.docx`, `presentacion.md`, `CV_Nombre_…`).
 
-Cada oferta congelada vive en `candidaturas/YYYY-MM-DD_empresa_puesto/`. Esta carpeta se pisa en cada **genera candidatura** (y si corres `cvtool render --familia`).
+Se pisa en cada **genera candidatura**. No commitees PDFs. Tras enviar: **registrar envío**.
 
-No commitees PDFs ni DOCX. Tras enviar, **registrar envío**.
+Ver [README raíz](../README.md).
