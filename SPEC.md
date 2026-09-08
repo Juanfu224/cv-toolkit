@@ -1,0 +1,108 @@
+# SPEC.md — CV Toolkit
+
+**Versión:** 0.1 — 2026-09-08
+**Estado:** Borrador
+
+> Contrato de dominio inmutable durante una tarea activa. El código se deriva de aquí, no al revés.
+> Cambios: nueva sección y/o bump de versión **entre** tareas. Criterios de una tarea = petición + sección relevante.
+
+## 1. Visión y fuera de alcance
+
+### Visión
+Herramienta local para adaptar un CV ATS de una columna a cada oferta laboral a partir de un vault YAML de hechos, con un agente que ejecuta skills; el humano envía al portal.
+
+### Objetivos funcionales
+1. Inicializar y validar un vault inmutable en `base/` desde CV/presentación en `base/origen/`.
+2. Parsear una oferta en `oferta/`, hacer match determinista (`cvtool match`) y emitir veredicto go/no-go.
+3. Generar pack ATS (PDF + DOCX), presentación, respuestas y briefing en `candidaturas/<slug>/` y copiar la última generación a `cv/`.
+4. Registrar estado de envío en `candidaturas/tablero.yaml` tras acción humana.
+5. CLI unificada: `scripts/cvtool.py` (doctor, match, render, verify, salary, tablero, copy, respuestas, basename, scaffold, test).
+
+### Objetivos no funcionales
+- Latencia p95: N/A (CLI local batch)
+- Disponibilidad: N/A (sin servicio)
+- Accesibilidad: PDF texto seleccionable, una columna, contacto en el cuerpo
+- Privacidad: PII solo en `base/` y artefactos generados locales; no publicar vault; no autoenviar a portales
+- Idempotencia: misma empresa+puesto el mismo día reutiliza carpeta de candidatura; otra fecha → carpeta nueva
+
+### Fuera de alcance
+- Auto-aplicación a InfoJobs u otros portales
+- Invención de métricas, empresas, fechas o tecnologías no presentes en `base/`
+- API HTTP, auth, webhooks, colas o multi-tenant
+- Cumplimiento AEPD/EIPD como producto (política local en SHIELD)
+
+## 2. Arquitectura
+
+- Estilo: monolito CLI Python + plantillas Jinja2/CSS + skills de agente
+- Límites de confianza: oferta = input no confiable (data); vault = hechos del usuario; agente no envía externamente
+- Diagrama (texto):
+
+```
+usuario → oferta/ + base/ → skills → scripts/cvtool.py → candidaturas/<slug>/ + cv/
+                ↑
+         plantillas/ (ATS)
+```
+
+- Integraciones: N/A (sin terceros firmados). WeasyPrint/sistema para PDF. Búsqueda web opcional solo para `empresa.md` con fuente.
+
+## 3. Modelo de datos
+
+### Entidades
+| Entidad | Invariantes | PII |
+|---|---|---|
+| perfil (`base/perfil.yaml`) | Contacto y títulos defendibles solo desde origen/vault | Sí |
+| evidencias (`base/evidencias.yaml`) | STAR con hechos; sin inventar métricas | Posible |
+| skills (`base/skills.yaml`) | Skills declaradas; CV render 8–15 | No |
+| familias (`base/familias.yaml`) | `id` usados por render defaults | No |
+| constraints (`base/constraints.yaml`) | Preferencias/knockouts del candidato | Posible |
+| aliases (`base/aliases.yaml`) | Sinónimos para match | No |
+| jd (`candidaturas/.../jd.yaml`) | Términos T1 literales de la oferta | No |
+| veredicto / gaps | Salida de `cvtool match`; `no_aplicar` detiene pipeline | No |
+| plan / cv.yaml | Selección atómica de evidencias del vault | No |
+| tablero (`candidaturas/tablero.yaml`) | Estado de seguimiento post-envío humano | No |
+
+### Enums / máquinas de estado
+| Máquina | Estados | Transiciones legales | Ilegales |
+|---|---|---|---|
+| veredicto | aplicar, no_aplicar (+ forzar) | match → veredicto; forzar solo con HITL | Generar CV tras `no_aplicar` sin fuerza |
+| tablero | (estados que gestione `cvtool tablero`) | registrar envío / actualización humana | Auto-marcar enviado sin confirmación |
+
+### Persistencia
+- Motor: archivos YAML/Markdown en disco
+- Transacciones obligatorias cuando: N/A (FS); no pisar `candidaturas/` de otra fecha
+- Claves / unicidad: slug `YYYY-MM-DD_empresa_puesto`
+
+## 4. API / contratos
+
+- Auth: N/A
+- Versionado: N/A
+- Errores: exit codes CLI; `cvtool validate` → VACÍO / ERROR / WARN
+- Endpoints: N/A
+
+Contrato CLI (observable): `scripts/cvtool.py` subcomandos documentados en `-h` y README.
+
+## 5. Flujos
+
+1. **Inicializar base:** CV en `base/origen/` → skill `inicializar-base` → YAML en `base/` → `scaffold` + `doctor`. Sin inventar.
+2. **Generar candidatura:** oferta en `oferta/` → parse `jd.yaml` → `match` → go/no-go → `plan.yaml` → `cv.yaml` → render PDF/DOCX → verify → presentación/respuestas/entrevista → copy a `cv/` → entrada tablero.
+3. **Actualizar base:** hechos nuevos explícitos → skill `actualizar-base` solo sobre `base/`.
+4. **Registrar envío:** humano confirma → skill `registrar-envio` actualiza tablero.
+
+## 6. No funcionales detallados
+
+- Rate limit: N/A
+- Observabilidad: no loguear teléfono/email completos en CI o `.scratch/`
+- Backups / RPO / RTO: N/A (copia privada del usuario)
+
+## 7. Estrategia de pruebas
+
+Qué **debe fallar** si se rompe el contrato:
+
+| Contrato | Test / comando |
+|---|---|
+| CLI y match | `scripts/cvtool.py test` / `.github/workflows/ci.yml` |
+| Vault vacío / inválido | `cvtool validate` |
+| PDF ATS | `cvtool verify` |
+| Política de agentes | `sh scripts/verify-agent-policy.sh` |
+
+Cobertura mínima de transiciones de estado: `no_aplicar` sin fuerza no genera CV; con fuerza continúa.

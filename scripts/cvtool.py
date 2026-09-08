@@ -168,7 +168,7 @@ def cmd_init(_args: argparse.Namespace) -> int:
     if "curriculum.md" not in origen and "curriculum.pdf" not in origen:
         print("Falta CV en base/origen/. Copia curriculum.md o curriculum.pdf y di: inicializa mi base")
         return 1
-    print("Siguiente paso: en Cursor, escribe «inicializa mi base».")
+    print("Siguiente paso: en el agente, escribe «inicializa mi base».")
     print("El agente extrae hechos a base/*.yaml. Luego: cvtool scaffold && cvtool validate")
     return 0
 

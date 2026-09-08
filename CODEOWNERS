@@ -1,0 +1,9 @@
+.agents/hooks/ @juanfu224
+.agents/policy/ @juanfu224
+.cursor/hooks.json @juanfu224
+.cursor/sandbox.json @juanfu224
+.claude/settings.json @juanfu224
+scripts/verify-agent-policy.sh @juanfu224
+scripts/audit-hooks.sh @juanfu224
+scripts/regen-integrity.sh @juanfu224
+.github/workflows/agent-policy-integrity.yml @juanfu224

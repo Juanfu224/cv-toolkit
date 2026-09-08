@@ -1,0 +1,15 @@
+{
+  "networkPolicy": {
+    "default": "deny",
+    "allow": [
+      "pypi.org",
+      "files.pythonhosted.org",
+      "pypi.python.org"
+    ],
+    "deny": [
+      "169.254.169.254",
+      "metadata.google.internal",
+      "*.ngrok.io"
+    ]
+  }
+}

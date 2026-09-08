@@ -93,7 +93,7 @@ def run_doctor() -> int:
         code = validate()
 
     if code == 2 or vault_vacio(perfil):
-        _warn("vault", "VACÍO — en Cursor: inicializa mi base")
+        _warn("vault", "VACÍO — en el agente: inicializa mi base")
         siguiente = "copia tu CV a base/origen/ y di «inicializa mi base»"
     elif code == 1:
         _fail("vault", "inconsistente — corrige ERROR de validate")

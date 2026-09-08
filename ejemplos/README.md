@@ -22,4 +22,4 @@ cp ejemplos/oferta-demo/preguntas.md oferta/preguntas.md
 cp ejemplos/oferta-demo/meta.yaml oferta/meta.yaml
 ```
 
-Luego en Cursor: **genera candidatura** (con el vault de ejemplo ya cargado).
+Luego en tu agente: **genera candidatura** (con el vault de ejemplo ya cargado).

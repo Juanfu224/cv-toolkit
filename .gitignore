@@ -17,3 +17,14 @@ plantillas/cv_default_*.yaml
 candidaturas/**/*.pdf
 candidaturas/**/*.docx
 candidaturas/**/_extract.txt
+.scratch/
+*.mcp.json
+.env
+.env.*
+!.env.example
+*.pem
+id_rsa
+id_ed25519
+id_ecdsa
+id_rsa.pub
+credentials.json

@@ -1,13 +1,13 @@
 # CV Toolkit
 
-Adapta un CV **ATS de una columna** a cada oferta, con hechos en un vault YAML y un agente de Cursor. **Tú envías** al portal. No autoaplica ni inventa experiencia.
+Adapta un CV **ATS de una columna** a cada oferta, con hechos en un vault YAML y un agente de IA. **Tú envías** al portal. No autoaplica ni inventa experiencia.
 
 Mantén **tu copia privada**: `base/` acaba con teléfono, email e historial. Licencia: [MIT](LICENSE).
 
 
 ## Empezar
 
-Python **3.10+** y Cursor.
+Python **3.10+**.
 
 ```bash
 python3 -m venv .venv
@@ -27,7 +27,7 @@ brew install pango cairo gdk-pixbuf
 ```
 
 1. Copia tu CV a [`base/origen/curriculum.md`](base/origen/curriculum.md) (o PDF con texto seleccionable).
-2. En Cursor: **inicializa mi base**.
+2. En tu agente: **inicializa mi base**.
 3. Pega la oferta en [`oferta/descripcion.md`](oferta/descripcion.md) → **genera candidatura**.
 4. Envía tú el PDF/DOCX de `cv/` o `candidaturas/…`.
 5. Di **registrar envío**.
@@ -35,7 +35,22 @@ brew install pango cairo gdk-pixbuf
 ¿Sin CV a mano? Prueba con datos ficticios: [`ejemplos/`](ejemplos/README.md).
 
 
-## Frases en Cursor
+## Con cualquier agente
+
+Abre este repo en Cursor, Claude Code, Codex u otro runtime que lea [`AGENTS.md`](AGENTS.md) y skills. El contrato no depende de un IDE:
+
+| Artefacto | Rol |
+|---|---|
+| [`AGENTS.md`](AGENTS.md) | Router (qué skill cargar) |
+| [`.agents/skills/`](.agents/skills/) | Recetas (Agent Skills) |
+| [`SPEC.md`](SPEC.md) | Contrato de dominio |
+| [`SHIELD.md`](SHIELD.md) | Hard stops / PII / no autoenviar |
+| [`CLAUDE.md`](CLAUDE.md) | Puntero `@AGENTS.md` |
+
+Cursor y Claude descubren las mismas skills vía symlink a `.agents/skills/`.
+
+
+## Frases al agente
 
 | Cuándo | Escribe |
 |---|---|
@@ -68,7 +83,7 @@ El PDF no sustituye el perfil de InfoJobs u otros portales.
 
 ## Carpetas
 
-`base/` hechos · `oferta/` buzón · `cv/` última generación · `candidaturas/` historial · `plantillas/` ATS · `ejemplos/` demo · `scripts/cvtool.py` CLI.
+`base/` hechos · `oferta/` buzón · `cv/` última generación · `candidaturas/` historial · `plantillas/` ATS · `ejemplos/` demo · `scripts/cvtool.py` CLI · `.agents/` gobernanza y skills.
 
 
 ## CLI avanzada
@@ -97,4 +112,4 @@ Resto: `cvtool -h` (`match`, `copy`, `salary`, `respuestas`, `basename`, …).
 | `no_aplicar` | Lee `veredicto.yaml`; fuerza solo si aceptas el gap |
 | PDF > 1 página | Recorta `cv.yaml` y vuelve a renderizar |
 
-Agente: [`AGENTS.md`](AGENTS.md).
+Agente: [`AGENTS.md`](AGENTS.md). Gobernanza: [`SHIELD.md`](SHIELD.md) · [`SPEC.md`](SPEC.md).
