@@ -1,0 +1,43 @@
+from __future__ import annotations
+
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
+
+from basename import pascal_nombre, send_basename  # noqa: E402
+from tablero import ESTADOS, list_rows, upsert  # noqa: E402
+
+
+class BasenameTests(unittest.TestCase):
+    def test_tres_palabras(self) -> None:
+        self.assertEqual(pascal_nombre("Ana Pérez López García"), "AnaPerezLopez")
+
+    def test_send_basename(self) -> None:
+        name = send_basename("Ana Pérez", "Desarrollador web", "Acme Corp")
+        self.assertEqual(name, "CV_AnaPerez_Desarrollador_web_Acme_Corp")
+
+
+class TableroTests(unittest.TestCase):
+    def test_upsert_y_seguimiento(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "tablero.yaml"
+            row = upsert(
+                "2026-09-08_acme_dev",
+                "enviada",
+                empresa="Acme",
+                puesto="Dev",
+                enviada="2026-09-08",
+                path=path,
+            )
+            self.assertEqual(row["estado"], "enviada")
+            self.assertEqual(row["seguimiento"], "2026-09-15")
+            self.assertEqual(len(list_rows(path)), 1)
+            self.assertIn("enviada", ESTADOS)
+
+
+if __name__ == "__main__":
+    unittest.main()

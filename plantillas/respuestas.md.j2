@@ -1,0 +1,12 @@
+{% for item in respuestas %}
+## {{ item.pregunta }}
+
+{{ item.respuesta }}
+
+Caracteres: {{ item.caracteres }}{% if item.limite %} / {{ item.limite }}{% endif %}
+Fuente: {{ item.fuente }}
+{% if item.necesita_confirmacion %}
+NECESITA_CONFIRMACION
+{% endif %}
+
+{% endfor %}

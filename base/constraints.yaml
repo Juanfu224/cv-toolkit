@@ -1,0 +1,38 @@
+ubicacion:
+  ciudad: PENDIENTE
+  provincia: PENDIENTE
+  pais: PENDIENTE
+  remoto: true
+  hibrido: true
+  presencial: caso_a_caso
+  traslado_confirmado: false
+preaviso_dias: null
+disponibilidad_inmediata: null
+salario:
+  moneda: EUR
+  periodo: anual_bruto
+  abierto_a_pactar: true
+  alinear_a_rango_publicado: true
+formatos_envio:
+  - pdf
+  - docx
+titulos_no_defendibles:
+  - Senior
+  - Arquitecto
+  - Lead
+  - Principal
+  - Staff
+  - Manager
+  - Director
+knockout:
+  anios_experiencia_max_aceptados: null
+  seniority_no_aplicar:
+    - senior
+    - lead
+    - architect
+    - manager
+notas_salario: >
+  Las bandas por familia viven en familias.yaml.
+  Si la oferta publica un rango y oferta.max >= min de familia, usar ese rango
+  (scripts/cvtool.py salary). Si oferta.max < min, NECESITA_CONFIRMACION.
+  No poner salario en el CV; solo en respuestas si lo preguntan.

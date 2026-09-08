@@ -1,0 +1,9 @@
+# Declara las familias de puesto que persigues. El init las rellena.
+# incluye_proyectos: si el CV junior de esa familia lleva sección Proyectos.
+#
+#   - id: dev
+#     nombre: Desarrollo
+#     incluye_proyectos: true
+#     salario: {min: 22000, max: 28000}
+#     titulos_tipicos: [desarrollador, frontend, backend]
+familias: []

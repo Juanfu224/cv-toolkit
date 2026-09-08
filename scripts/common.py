@@ -1,0 +1,62 @@
+from __future__ import annotations
+
+import re
+import unicodedata
+from pathlib import Path
+
+import yaml
+
+
+def load_yaml(path: Path) -> dict:
+    with path.open(encoding="utf-8") as fh:
+        data = yaml.safe_load(fh) or {}
+    if not isinstance(data, dict):
+        raise SystemExit(f"{path} no es un mapeo YAML")
+    return data
+
+
+def dump_yaml(path: Path, data: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as fh:
+        yaml.safe_dump(data, fh, allow_unicode=True, sort_keys=False)
+
+
+def norm(text: str) -> str:
+    text = unicodedata.normalize("NFKD", text or "")
+    text = "".join(ch for ch in text if not unicodedata.combining(ch))
+    text = text.lower()
+    text = re.sub(r"[^a-z0-9+.# ]+", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def tokens(text: str) -> list[str]:
+    n = norm(text)
+    return n.split() if n else []
+
+
+def contains_seq(haystack: list[str], needle: list[str]) -> bool:
+    if not needle or not haystack or len(needle) > len(haystack):
+        return False
+    n = len(needle)
+    for i in range(len(haystack) - n + 1):
+        if haystack[i : i + n] == needle:
+            return True
+    return False
+
+
+def phrase_in_terms(phrase: str, terms: set[str]) -> bool:
+    ptoks = tokens(phrase)
+    if not ptoks:
+        return False
+    joined = " ".join(ptoks)
+    if joined in terms:
+        return True
+    for term in terms:
+        ttoks = term.split()
+        if contains_seq(ttoks, ptoks) or contains_seq(ptoks, ttoks):
+            return True
+    return False
+
+
+def phrase_in_text(phrase: str, text: str) -> bool:
+    return contains_seq(tokens(text), tokens(phrase))

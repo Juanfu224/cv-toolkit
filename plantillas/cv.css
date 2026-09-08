@@ -1,0 +1,91 @@
+@page {
+  size: A4;
+  margin: 1.6cm 1.7cm 1.6cm 1.7cm;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: "Carlito", "Liberation Sans", Calibri, Arial, Helvetica, sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.28;
+  color: #111;
+}
+
+h1 {
+  font-size: 18pt;
+  font-weight: 700;
+  margin: 0 0 2pt 0;
+  letter-spacing: 0.01em;
+}
+
+.headline {
+  font-size: 12pt;
+  font-weight: 700;
+  margin: 0 0 4pt 0;
+}
+
+.contact {
+  margin: 0 0 2pt 0;
+  font-size: 9.5pt;
+}
+
+.contact.links {
+  margin: 0 0 10pt 0;
+  font-size: 9pt;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+.contact a {
+  color: #111;
+  text-decoration: none;
+}
+
+h2 {
+  font-size: 11pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 9pt 0 4pt 0;
+  padding-bottom: 2pt;
+  border-bottom: 0.8pt solid #222;
+}
+
+p {
+  margin: 0 0 6pt 0;
+}
+
+.skills {
+  margin: 0 0 4pt 0;
+}
+
+.job {
+  margin: 0 0 7pt 0;
+}
+
+.job-header {
+  margin: 0;
+  font-weight: 700;
+}
+
+.job-meta {
+  font-weight: 400;
+}
+
+ul {
+  margin: 2pt 0 0 0;
+  padding-left: 14pt;
+}
+
+li {
+  margin: 0 0 1.5pt 0;
+}
+
+.muted {
+  font-size: 9.5pt;
+}

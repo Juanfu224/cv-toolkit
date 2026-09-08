@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>{{ cv.nombre }} — {{ cv.headline }}</title>
+  <link rel="stylesheet" href="{{ css_href }}">
+</head>
+<body>
+  <article>
+    <h1>{{ cv.nombre }}</h1>
+    <p class="headline">{{ cv.headline }}</p>
+    <p class="contact">
+      {{ cv.contacto.telefono }}
+      · {{ cv.contacto.email }}
+      · {{ cv.contacto.ciudad }}, {{ cv.contacto.pais }}
+    </p>
+    <p class="contact links">
+      <a href="{{ cv.contacto.linkedin }}">{{ cv.contacto.linkedin }}</a><br>
+      <a href="{{ cv.contacto.github }}">{{ cv.contacto.github }}</a>
+    </p>
+
+    {% for seccion in cv.secciones %}
+      {% if seccion == "perfil" %}
+        <h2>Perfil profesional</h2>
+        <p>{{ cv.perfil }}</p>
+      {% elif seccion == "competencias" %}
+        <h2>Competencias</h2>
+        <p class="skills">{{ cv.competencias | join(" · ") }}</p>
+      {% elif seccion == "experiencia" %}
+        <h2>Experiencia</h2>
+        {% for rol in cv.experiencia %}
+          <div class="job">
+            <p class="job-header">{{ rol.titulo }} — {{ rol.empresa }} <span class="job-meta">({{ rol.fechas }})</span></p>
+            <ul>
+              {% for b in rol.bullets %}
+                <li>{{ b.texto if b is mapping else b }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endfor %}
+      {% elif seccion == "proyectos" and cv.proyectos %}
+        <h2>Proyectos</h2>
+        {% for proj in cv.proyectos %}
+          <div class="job">
+            <p class="job-header">{{ proj.nombre }}{% if proj.url %} — {{ proj.url }}{% endif %}</p>
+            {% if proj.stack %}<p class="muted">{{ proj.stack | join(", ") }}</p>{% endif %}
+            <ul>
+              {% for b in proj.bullets %}
+                <li>{{ b.texto if b is mapping else b }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endfor %}
+      {% elif seccion == "formacion" %}
+        <h2>Formación</h2>
+        <ul>
+          {% for edu in cv.formacion %}
+            <li><strong>{{ edu.titulo }}</strong>{% if edu.centro %} — {{ edu.centro }}{% endif %} ({{ edu.fecha }})</li>
+          {% endfor %}
+        </ul>
+      {% elif seccion == "idiomas" %}
+        <h2>Idiomas</h2>
+        <p>{{ idiomas_linea }}</p>
+      {% elif seccion == "certificaciones" and cv.certificaciones %}
+        <h2>Certificaciones</h2>
+        <p>{{ certs_linea }}</p>
+      {% endif %}
+    {% endfor %}
+  </article>
+</body>
+</html>
