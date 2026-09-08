@@ -68,6 +68,7 @@ class CvtoolHelpTests(unittest.TestCase):
         self.assertIn("copy", proc.stdout)
         self.assertIn("doctor", proc.stdout)
         self.assertIn("respuestas", proc.stdout)
+        self.assertIn("pack", proc.stdout)
 
 
 class DoctorTests(unittest.TestCase):

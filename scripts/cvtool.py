@@ -77,6 +77,28 @@ def cmd_verify(args: argparse.Namespace) -> int:
     return _run(cmd)
 
 
+def cmd_pack(args: argparse.Namespace) -> int:
+    cmd = [
+        PY,
+        str(SCRIPTS / "pack_cv.py"),
+        "--cv",
+        str(args.cv),
+        "--out",
+        str(args.out),
+    ]
+    if args.gaps:
+        cmd.extend(["--gaps", str(args.gaps)])
+    if args.aliases:
+        cmd.extend(["--aliases", str(args.aliases)])
+    if args.report:
+        cmd.extend(["--report", str(args.report)])
+    if args.out_dir:
+        cmd.extend(["--out-dir", str(args.out_dir), "--basename", args.basename])
+    if args.no_perfil:
+        cmd.append("--no-perfil")
+    return _run(cmd)
+
+
 def cmd_test(_args: argparse.Namespace) -> int:
     return _run(
         [PY, "-m", "unittest", "discover", "-s", str(TESTS), "-p", "test_*.py", "-v"]
@@ -273,6 +295,22 @@ def main() -> int:
     p_verify.add_argument("pdf", nargs="?", type=Path)
     p_verify.add_argument("--out", type=Path)
 
+    p_pack = sub.add_parser(
+        "pack", help="Empaqueta cv.yaml a máxima señal en ≤1 página"
+    )
+    p_pack.add_argument("--cv", required=True, type=Path)
+    p_pack.add_argument("--out", required=True, type=Path)
+    p_pack.add_argument("--gaps", type=Path)
+    p_pack.add_argument("--aliases", type=Path)
+    p_pack.add_argument("--report", type=Path)
+    p_pack.add_argument("--out-dir", type=Path)
+    p_pack.add_argument("--basename", default="curriculum")
+    p_pack.add_argument(
+        "--no-perfil",
+        action="store_true",
+        help="No sobrescribe nombre/contacto desde base/perfil.yaml",
+    )
+
     p_sal = sub.add_parser("salary", help="Sugiere rango salarial para respuestas")
     p_sal.add_argument("--familia", required=True)
     p_sal.add_argument("--oferta-min", type=int)
@@ -305,6 +343,7 @@ def main() -> int:
         "copy": cmd_copy,
         "respuestas": cmd_respuestas,
         "verify": cmd_verify,
+        "pack": cmd_pack,
         "test": cmd_test,
         "salary": cmd_salary,
         "scaffold": cmd_scaffold,

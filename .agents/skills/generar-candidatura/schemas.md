@@ -45,7 +45,7 @@ forzar: bool
 familia: string   # id de base/familias.yaml
 headline: string
 perfil: string
-evidencias_usar: [id]
+evidencias_usar: [id]      # ordenadas de mayor a menor impacto para la oferta
 evidencias_ocultar: [id]
 t1_en_resumen: [string]
 t1_en_skills: [string]
@@ -59,7 +59,25 @@ mitigacion_gaps: string
 Ver `plantillas/cv_default_<familia>.yaml`. Cada bullet: `{texto, evidencia_id}`.
 Competencias: 8–15 términos de esta oferta que existan en `base/skills.yaml`.
 Headline: título de la oferta solo si está en `perfil.titulos_defendibles` o es un sinónimo honesto (nunca Senior/Arquitecto).
+Draft: puede ser generoso (hasta ~5 bullets/rol reciente); `cvtool pack` deja ≤1 página.
 
+## pack_report.yaml
+
+Salida de `cvtool pack` (sin PII de contacto):
+
+```yaml
+t1: [string]
+pages: int
+pages_core: int
+included: [{key, reason, score?}]
+excluded: [{key, reason, score?}]
+forced: [{key, reason}]
+warnings: [string]
+t1_missing_skills: [string]
+t1_missing_bullets: [string]
+```
+
+`key` usa prefijos `skill:` o `bullet:<evidencia_id>`.
 ## meta.yaml (candidatura)
 
 ```yaml

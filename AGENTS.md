@@ -21,7 +21,7 @@ Onboarding humano: `README.md` → `docs/usar.md`. Desarrollo del kit: `docs/des
 | actualizar base | `.agents/skills/actualizar-base/SKILL.md` |
 | registrar envío | `.agents/skills/registrar-envio/SKILL.md` |
 
-CLI: `scripts/cvtool.py` — doctor, status, init, validate, validate-jd, scaffold, match (`--forzar`), render, verify, copy, salary, respuestas, basename, tablero, test.
+CLI: `scripts/cvtool.py` — doctor, status, init, validate, validate-jd, scaffold, match (`--forzar`), pack, render, verify, copy, salary, respuestas, basename, tablero, test.
 Schemas: `.agents/skills/generar-candidatura/schemas.md`.
 
 ## Subagentes

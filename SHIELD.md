@@ -97,5 +97,5 @@ N/A — este producto no expone webhooks.
 
 ## 8. Autocuración vs parada
 
-Autonomía: lint, format, test del nodo, `cvtool` doctor/validate/match/render/verify sobre paths del rol.
+Autonomía: lint, format, test del nodo, `cvtool` doctor/validate/match/pack/render/verify sobre paths del rol.
 Parada: Hard Stops, CB, Intent Gates, desvío de SPEC, `no_aplicar` sin fuerza.

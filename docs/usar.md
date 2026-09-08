@@ -105,7 +105,7 @@ Skills `epic-workflow` y `shield-security-gate` son para **desarrollar el kit**,
 .venv/bin/python scripts/cvtool.py tablero list
 ```
 
-Resto: `cvtool -h` (`scaffold`, `match`, `validate-jd`, `render`, `copy`, `salary`, `respuestas`, `basename`, `init`, `test`, …).
+Resto: `cvtool -h` (`scaffold`, `match`, `pack`, `validate-jd`, `render`, `copy`, `salary`, `respuestas`, `basename`, `init`, `test`, …).
 
 Antes del match: `cvtool validate-jd path/jd.yaml`. Tras HITL: `cvtool match … --forzar`.
 
@@ -119,7 +119,7 @@ Antes del match: `cvtool validate-jd path/jd.yaml`. Tras HITL: `cvtool match …
 | PDF origen sin texto | Instala `pdftotext` o usa `curriculum.md` |
 | Vault vacío | CV en `base/origen/` → **inicializa mi base** |
 | `no_aplicar` | Lee `veredicto.yaml`; fuerza solo si aceptas el gap (`--forzar`) |
-| PDF > 1 página | Recorta `cv.yaml` y vuelve a renderizar |
+| PDF > 1 página | `cvtool pack --cv … --out … --gaps …` y vuelve a `render`/`verify` |
 
 ## FAQ
 
@@ -131,6 +131,6 @@ Antes del match: `cvtool validate-jd path/jd.yaml`. Tras HITL: `cvtool match …
 
 **¿`no_aplicar`?** Lee gaps en `veredicto.yaml`. Solo `--forzar` si aceptas el riesgo.
 
-**¿PDF de más de una página?** Recorta bullets en `cv.yaml` y `cvtool render` de nuevo.
+**¿PDF de más de una página?** Ejecuta `cvtool pack` sobre el `cv.yaml` de la candidatura (con `--gaps`) y luego `cvtool render` + `verify`. Solo acorta a mano si el núcleo ya no cabe.
 
 **¿Dónde está el historial?** `candidaturas/` + `tablero.yaml`.

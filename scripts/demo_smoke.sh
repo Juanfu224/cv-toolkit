@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# Smoke sin LLM: vault-minimo + oferta-demo → validate-jd → match → scaffold → render → verify.
+# Smoke sin LLM: vault-minimo + oferta-demo → validate-jd → match → scaffold → pack → render → verify.
 # No modifica base/ del repo. Salida en un directorio temporal.
 set -eu
 ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
@@ -86,6 +86,23 @@ perfil = load_yaml(base / "perfil.yaml")
 cv["nombre"] = perfil["nombre"]
 cv["contacto"] = perfil["contacto"]
 
+from pack_cv import pack
+
+packed, pack_report = pack(
+    cv,
+    gaps=gaps,
+    aliases=load_yaml(base / "aliases.yaml"),
+    work_dir=out / "packwork",
+)
+dump_yaml(out / "cv_packed.yaml", packed)
+dump_yaml(out / "pack_report.yaml", pack_report)
+print(
+    f"pack: OK  páginas={pack_report.get('pages')}  "
+    f"incluidos={len(pack_report.get('included') or [])}  "
+    f"excluidos={len(pack_report.get('excluded') or [])}"
+)
+cv = packed
+
 (out / "curriculum.md").write_text(to_markdown(cv), encoding="utf-8")
 pdf = out / "curriculum.pdf"
 to_pdf(cv, pdf)
@@ -114,6 +131,8 @@ print()
 print("Demo OK. Artefactos:")
 print(f"  {gaps_path}")
 print(f"  {ver_path}")
+print(f"  {out / 'cv_packed.yaml'}")
+print(f"  {out / 'pack_report.yaml'}")
 print(f"  {pdf}")
 print(f"  {out / 'curriculum.docx'}")
 print()

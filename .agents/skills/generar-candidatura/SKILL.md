@@ -23,9 +23,9 @@ Si el vault está vacío (`cvtool validate` sale VACÍO), para y pide **iniciali
 - [ ] 3 match → gaps.yaml + veredicto.yaml
 - [ ] 4 Go/no-go
 - [ ] 5 plan.yaml
-- [ ] 6 cv.yaml atómico
+- [ ] 6 cv.yaml draft rico
 - [ ] 7 Revisor adversario
-- [ ] 8 PDF + DOCX + verify
+- [ ] 8 pack ≤1 página + PDF/DOCX + verify
 - [ ] 9 presentacion, respuestas, entrevista
 - [ ] 10 Copiar a cv/ y tablero
 ```
@@ -38,7 +38,7 @@ PY=".venv/bin/python"
 CVTOOL="$PY scripts/cvtool.py"
 ```
 
-Usa `$CVTOOL` para validate, validate-jd, match, scaffold, basename, render, verify, salary, copy y tablero. Ignora líneas placeholder de `oferta/` al parsear (`Pega aquí…`, `Luego escribe…`, `Si no hay preguntas…`).
+Usa `$CVTOOL` para validate, validate-jd, match, scaffold, basename, pack, render, verify, salary, copy y tablero. Ignora líneas placeholder de `oferta/` al parsear (`Pega aquí…`, `Luego escribe…`, `Si no hay preguntas…`).
 
 ## 0. Vault
 
@@ -93,14 +93,16 @@ Familia: elige un `id` de `base/familias.yaml` según título y T1 (`titulos_tip
 
 ## 5. Plan → `plan.yaml`
 
-Toca resumen, 8–15 skills y 3–4 bullets de máximo impacto. No reescribas el CV entero.
+Ordena evidencias por impacto para esta oferta (T1, métrica/resultado, recencia). No reescribas el CV entero.
 
+- `evidencias_usar`: ids **ordenados** de mayor a menor atractivo
 - Primer bullet de cada rol = el más alineado a esta oferta
 - T1 honestos (`have` o `rephrase`) en perfil + competencias + al menos un bullet
+- Draft generoso: hasta ~5 bullets/rol reciente y 8–15 skills; el empaquetado recorta a 1 página
 - Gaps `missing`: presentación o respuestas, nunca el CV
 - Sección Proyectos solo si esa familia tiene `incluye_proyectos: true` (o el JD es híbrido y el vault tiene proyectos)
 
-## 6. `cv.yaml`
+## 6. `cv.yaml` (draft)
 
 Parte de `plantillas/cv_default_<familia>.yaml`. Si no existe: `$CVTOOL scaffold`. Cada bullet `{texto, evidencia_id}` de `base/evidencias.yaml`.
 
@@ -111,7 +113,8 @@ Reglas:
 - Skills: nivel `diario` o `proyecto`, salvo que la oferta nombre una `formativa`
 - 8–15 competencias; blandas solo si un bullet las demuestra
 - Prohibido `IA` genérico; nombra la herramienta del vault (n8n, etc.)
-- 1 página; ciudad sin código postal; URLs completas (no bit.ly)
+- Ciudad sin código postal; URLs completas (no bit.ly)
+- No recortes a mano por longitud todavía: eso lo hace `pack`
 
 Luego, con el cv ya escrito:
 
@@ -128,7 +131,19 @@ Si hay `huerfanas` en T1, mete el término en competencias y en un bullet honest
 
 Sigue [revision-checklist.md](revision-checklist.md). Escribe `revision.md` (objeciones y si se aceptó el cambio).
 
-## 8. Render
+## 8. Pack → render → verify
+
+Empaqueta a máxima densidad de señal en ≤1 página (no improvisar tipografía):
+
+```bash
+$CVTOOL pack --cv candidaturas/<slug>/cv.yaml \
+  --out candidaturas/<slug>/cv.yaml \
+  --gaps candidaturas/<slug>/gaps.yaml \
+  --aliases base/aliases.yaml \
+  --report candidaturas/<slug>/pack_report.yaml
+```
+
+Si `pack` falla porque el núcleo ya supera 1 página, acorta perfil o bullets del rol reciente (sin inventar) y vuelve a empaquetar. Si `pack_report` deja T1 huérfano, reescribe un bullet **más corto** del núcleo que conserve el término; no reintroduzcas padding.
 
 Basename de envío (sin espacios, derivado del nombre del vault):
 
@@ -139,6 +154,10 @@ $CVTOOL render --cv candidaturas/<slug>/cv.yaml \
 cp candidaturas/<slug>/curriculum.pdf candidaturas/<slug>/${SEND}.pdf
 cp candidaturas/<slug>/curriculum.docx candidaturas/<slug>/${SEND}.docx
 cp candidaturas/<slug>/curriculum.md candidaturas/<slug>/${SEND}.md
+$CVTOOL match --jd candidaturas/<slug>/jd.yaml \
+  --cv candidaturas/<slug>/cv.yaml \
+  --out candidaturas/<slug>/gaps.yaml \
+  --veredicto candidaturas/<slug>/veredicto.yaml
 $CVTOOL verify candidaturas/<slug>/curriculum.pdf \
   --out candidaturas/<slug>/_extract.txt
 ```
