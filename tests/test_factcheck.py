@@ -69,7 +69,7 @@ class FactcheckTests(unittest.TestCase):
             (pack / "presentacion.md").write_text(
                 "Desarrollador web con Angular y TypeScript en Empresa A. "
                 "He construido interfaces ATS con HTML, CSS y SQL. "
-                "Puedo avanzar el stack del puesto esta misma semana.",
+                "¿15 minutos para contrastar el stack del anuncio?",
                 encoding="utf-8",
             )
             (pack / "outreach.md").write_text(
@@ -179,6 +179,54 @@ class FactcheckTests(unittest.TestCase):
             self.assertFalse(report["ok"])
             self.assertTrue(any(v["tipo"] == "cliche" for v in report["violaciones"]))
 
+    def test_eco_accion_resultado_falla(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base = write_vault(root)
+            pack = root / "pack"
+            pack.mkdir()
+            cv = _cv()
+            cv["experiencia"][0]["bullets"] = [
+                {
+                    "texto": "Implementé X en Y. Implementé X en Y",
+                    "evidencia_id": "ev-01",
+                }
+            ]
+            dump_yaml(pack / "cv.yaml", cv)
+            report = run_factcheck(pack, base)
+            self.assertFalse(report["ok"])
+            self.assertTrue(any(v["tipo"] == "eco" for v in report["violaciones"]))
+
+    def test_elaboracion_star_no_es_eco(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base = write_vault(root)
+            pack = root / "pack"
+            pack.mkdir()
+            cv = _cv()
+            cv["experiencia"][0]["bullets"] = [
+                {
+                    "texto": "Implementé X. Implementé X en producción con monitoreo",
+                    "evidencia_id": "ev-01",
+                }
+            ]
+            dump_yaml(pack / "cv.yaml", cv)
+            report = run_factcheck(pack, base)
+            self.assertFalse(any(v["tipo"] == "eco" for v in report["violaciones"]))
+
+    def test_perfil_lista_skills_falla(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base = write_vault(root)
+            pack = root / "pack"
+            pack.mkdir()
+            cv = _cv()
+            cv["perfil"] = " · ".join(cv["competencias"])
+            dump_yaml(pack / "cv.yaml", cv)
+            report = run_factcheck(pack, base)
+            self.assertFalse(report["ok"])
+            self.assertTrue(any(v["tipo"] == "perfil" for v in report["violaciones"]))
+
     def test_bullet_sin_evidencia_id_falla(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -276,6 +324,148 @@ class FactcheckTests(unittest.TestCase):
             self.assertTrue(
                 any(
                     v["tipo"] == "tono" and "respuestas.md" in v["dato"]
+                    for v in report["violaciones"]
+                )
+            )
+
+    def test_presentacion_cta_muerto_falla(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base = write_vault(root)
+            pack = root / "pack"
+            pack.mkdir()
+            dump_yaml(pack / "cv.yaml", _cv())
+            (pack / "presentacion.md").write_text(
+                "Desarrollo interfaces con Angular en Empresa A. "
+                "Adjunto mi CV y quedo a disposición.",
+                encoding="utf-8",
+            )
+            report = run_factcheck(pack, base)
+            self.assertFalse(report["ok"])
+            self.assertTrue(
+                any(
+                    v["tipo"] == "tono" and "cta_muerto" in v["detalle"]
+                    for v in report["violaciones"]
+                )
+            )
+
+    def test_presentacion_formativo_en_cuerpo_falla(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base = write_vault(root)
+            pack = root / "pack"
+            pack.mkdir()
+            dump_yaml(pack / "cv.yaml", _cv())
+            (pack / "presentacion.md").write_text(
+                "He entregado interfaces ATS con Angular. "
+                "Mi nivel formativo en Kubernetes no es el foco de esta carta. "
+                "¿15 minutos esta semana?",
+                encoding="utf-8",
+            )
+            report = run_factcheck(pack, base)
+            self.assertFalse(report["ok"])
+            self.assertTrue(
+                any(
+                    v["tipo"] == "tono" and "gap_en_carta" in v["detalle"]
+                    for v in report["violaciones"]
+                )
+            )
+
+    def test_presentacion_skills_dump_falla(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base = write_vault(root)
+            pack = root / "pack"
+            pack.mkdir()
+            cv = _cv()
+            dump_yaml(pack / "cv.yaml", cv)
+            (pack / "presentacion.md").write_text(
+                " · ".join(cv["competencias"]),
+                encoding="utf-8",
+            )
+            report = run_factcheck(pack, base)
+            self.assertFalse(report["ok"])
+            self.assertTrue(
+                any(
+                    v["tipo"] == "tono" and "skills_dump" in v["detalle"]
+                    for v in report["violaciones"]
+                )
+            )
+
+    def test_presentacion_formacion_academica_ok(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base = write_vault(root)
+            pack = root / "pack"
+            pack.mkdir()
+            dump_yaml(pack / "cv.yaml", _cv())
+            (pack / "presentacion.md").write_text(
+                "Mi formación en Ingeniería me dio base analítica. "
+                "En Empresa A entregué interfaces ATS con Angular. "
+                "¿15 minutos para contrastar el stack del anuncio?",
+                encoding="utf-8",
+            )
+            report = run_factcheck(pack, base)
+            self.assertFalse(
+                any("gap_en_carta" in v["detalle"] for v in report["violaciones"]),
+                report["violaciones"],
+            )
+
+    def test_presentacion_mentoring_en_formacion_ok(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base = write_vault(root)
+            pack = root / "pack"
+            pack.mkdir()
+            dump_yaml(pack / "cv.yaml", _cv())
+            (pack / "presentacion.md").write_text(
+                "En Empresa A trabajo en formación de juniors con Angular. "
+                "He entregado interfaces ATS usables a diario. "
+                "¿15 minutos esta semana?",
+                encoding="utf-8",
+            )
+            report = run_factcheck(pack, base)
+            self.assertFalse(
+                any("gap_en_carta" in v["detalle"] for v in report["violaciones"]),
+                report["violaciones"],
+            )
+
+    def test_presentacion_no_tengo_duda_ok(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base = write_vault(root)
+            pack = root / "pack"
+            pack.mkdir()
+            dump_yaml(pack / "cv.yaml", _cv())
+            (pack / "presentacion.md").write_text(
+                "No tengo duda de que encajo en el rol de interfaces ATS. "
+                "En Empresa A entregué flujos con Angular. "
+                "¿15 minutos para contrastar el stack del anuncio?",
+                encoding="utf-8",
+            )
+            report = run_factcheck(pack, base)
+            self.assertFalse(
+                any(v["tipo"] == "tono" for v in report["violaciones"]),
+                report["violaciones"],
+            )
+
+    def test_presentacion_adjunto_cv_su_disposicion_falla(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base = write_vault(root)
+            pack = root / "pack"
+            pack.mkdir()
+            dump_yaml(pack / "cv.yaml", _cv())
+            (pack / "presentacion.md").write_text(
+                "Desarrollo interfaces con Angular en Empresa A. "
+                "Adjunto CV y quedo a su disposición.",
+                encoding="utf-8",
+            )
+            report = run_factcheck(pack, base)
+            self.assertFalse(report["ok"])
+            self.assertTrue(
+                any(
+                    v["tipo"] == "tono" and "cta_muerto" in v["detalle"]
                     for v in report["violaciones"]
                 )
             )

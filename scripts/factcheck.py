@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import dump_yaml, load_yaml, norm
+from common import dump_yaml, is_echo_bullet, load_yaml, norm, tokens
 from match import classify, vault_terms
 from paths import BASE, is_allowed_output
 
@@ -280,6 +280,107 @@ def check_evidencia_ids(cv: dict) -> list[dict]:
     return viol
 
 
+PERFIL_LIST_SEP = re.compile(r"[,·|/;\n]+")
+
+# CTA muertos (checklist/skill); variantes mi/el/su cubiertas por regex.
+DEAD_CTA_RES: tuple[tuple[re.Pattern[str], str], ...] = (
+    (re.compile(r"adjunto(?:\s+(?:mi|el))?\s+cv\b", re.I), "adjunto cv"),
+    (re.compile(r"adjunto\s+mi\s+curr[ií]culum\b", re.I), "adjunto mi curriculum"),
+    (
+        re.compile(r"(?:quedo|me\s+pongo)\s+a(?:\s+su)?\s+disposici[oó]n\b", re.I),
+        "quedo/me pongo a (su) disposición",
+    ),
+    (re.compile(r"quedo\s+a\s+la\s+espera\b", re.I), "quedo a la espera"),
+    (re.compile(r"espero\s+sus\s+noticias\b", re.I), "espero sus noticias"),
+    (re.compile(r"no\s+duden?\s+en\s+contactar\b", re.I), "no dude(n) en contactar"),
+)
+
+# Gaps en cuerpo: sin bare "formativo"/"en formación" (FP transformativo / mentoring).
+GAP_BODY_RES: tuple[tuple[re.Pattern[str], str], ...] = (
+    (re.compile(r"\bme\s+falta\b", re.I), "me falta"),
+    (re.compile(r"\bcarezco\b", re.I), "carezco"),
+    (re.compile(r"\bnivel\s+formativo\b", re.I), "nivel formativo"),
+    (re.compile(r"\bestoy\s+form[aá]ndome\b", re.I), "estoy formándome"),
+)
+NO_TENGO_RE = re.compile(r"\bno\s+tengo\b", re.I)
+NO_TENGO_IDIOM_AFTER = re.compile(r"^\s*(duda|problema|claro)\b", re.I)
+
+
+def _dead_cta_hit(text: str) -> str | None:
+    for rx, label in DEAD_CTA_RES:
+        if rx.search(text or ""):
+            return label
+    return None
+
+
+def _gap_in_carta_hit(text: str) -> str | None:
+    """Frase de gap/formativo en el cuerpo; excluye idiomáticos «no tengo duda/problema/claro»."""
+    body = text or ""
+    for m in NO_TENGO_RE.finditer(body):
+        if NO_TENGO_IDIOM_AFTER.match(body[m.end() :]):
+            continue
+        return "no tengo"
+    for rx, label in GAP_BODY_RES:
+        if rx.search(body):
+            return label
+    return None
+
+
+def _skills_dump_in_text(text: str, comps: list[str]) -> bool:
+    """True si el texto es catálogo de competencias (lista ∩ comps ≥3 y ≥60% palabras)."""
+    body = (text or "").strip()
+    if not body or len(comps) < 3:
+        return False
+    comps_by_norm = {norm(c): c for c in comps}
+    parts = [p.strip() for p in PERFIL_LIST_SEP.split(body) if p.strip()]
+    if len(parts) < 3:
+        return False
+    matched = [p for p in parts if norm(p) in comps_by_norm]
+    if len(matched) < 3:
+        return False
+    matched_words = sum(len(tokens(p)) for p in matched)
+    total_words = len(tokens(body))
+    return total_words > 0 and matched_words / total_words >= 0.6
+
+
+def check_eco(cv: dict) -> list[dict]:
+    """Rechaza bullets cuya 2ª cláusula ≈ la 1ª (eco acción→resultado)."""
+    viol: list[dict] = []
+    for bloque in (cv.get("experiencia") or []) + (cv.get("proyectos") or []):
+        label = bloque.get("empresa") or bloque.get("nombre") or "?"
+        for i, b in enumerate(bloque.get("bullets") or []):
+            if isinstance(b, str):
+                texto = b
+            elif isinstance(b, dict):
+                texto = str(b.get("texto") or "")
+            else:
+                continue
+            if is_echo_bullet(texto):
+                viol.append(
+                    {
+                        "tipo": "eco",
+                        "dato": f"{label}[{i}]",
+                        "detalle": "2ª frase ≈ 1ª (fusionar o cortar eco)",
+                    }
+                )
+    return viol
+
+
+def check_perfil_lista(cv: dict) -> list[dict]:
+    """Rechaza perfil que es catálogo de competencias (no narrativa de encaje)."""
+    perfil = str(cv.get("perfil") or "").strip()
+    comps = [str(c).strip() for c in (cv.get("competencias") or []) if str(c).strip()]
+    if not _skills_dump_in_text(perfil, comps):
+        return []
+    return [
+        {
+            "tipo": "perfil",
+            "dato": "perfil",
+            "detalle": "perfil es lista de competencias; usar 2–4 frases de encaje",
+        }
+    ]
+
+
 def check_huerfanas(pack_dir: Path) -> list[dict]:
     path = pack_dir / "gaps.yaml"
     if not path.exists():
@@ -324,7 +425,13 @@ def check_certs_render(pack_dir: Path) -> list[dict]:
 
 
 def _opens_with_gap(text: str) -> bool:
-    return bool(GAP_OPEN_RE.match(text or ""))
+    body = text or ""
+    if not GAP_OPEN_RE.match(body):
+        return False
+    m = re.match(r"(?is)^\s*No tengo\b", body)
+    if m and NO_TENGO_IDIOM_AFTER.match(body[m.end() :]):
+        return False
+    return True
 
 
 def _respuesta_bodies(respuestas_md: str) -> list[tuple[str, str]]:
@@ -372,6 +479,47 @@ def check_tono_publico(named: dict[str, str]) -> list[dict]:
     return viol
 
 
+def check_presentacion_calidad(
+    named: dict[str, str], cv: dict | None
+) -> list[dict]:
+    """Olores baratos en presentacion.md: CTA muerto, gaps/formativo, skills dump."""
+    pres = named.get("presentacion.md")
+    if pres is None:
+        return []
+    viol: list[dict] = []
+    cta = _dead_cta_hit(pres)
+    if cta:
+        viol.append(
+            {
+                "tipo": "tono",
+                "dato": "presentacion.md",
+                "detalle": f"cta_muerto: {cta}",
+            }
+        )
+    # Dedupe: si ya abre con gap, check_tono_publico lo cubre.
+    if not _opens_with_gap(pres):
+        gap = _gap_in_carta_hit(pres)
+        if gap:
+            viol.append(
+                {
+                    "tipo": "tono",
+                    "dato": "presentacion.md",
+                    "detalle": f"gap_en_carta: {gap}",
+                }
+            )
+    if cv is not None:
+        comps = [str(c).strip() for c in (cv.get("competencias") or []) if str(c).strip()]
+        if _skills_dump_in_text(pres, comps):
+            viol.append(
+                {
+                    "tipo": "tono",
+                    "dato": "presentacion.md",
+                    "detalle": "skills_dump: carta es catálogo de competencias",
+                }
+            )
+    return viol
+
+
 def load_vault(base: Path) -> dict[str, Any]:
     return {
         "perfil": load_yaml(base / "perfil.yaml"),
@@ -394,6 +542,8 @@ def run_factcheck(pack_dir: Path, base: Path | None = None) -> dict:
         violaciones.extend(check_tecnologias(cv, vault))
         violaciones.extend(check_empleadores(cv, vault["perfil"]))
         violaciones.extend(check_evidencia_ids(cv))
+        violaciones.extend(check_eco(cv))
+        violaciones.extend(check_perfil_lista(cv))
     long_v, n_pres, n_out = check_longitud(named)
     violaciones.extend(long_v)
     violaciones.extend(check_empresa(pack_dir))
@@ -401,6 +551,7 @@ def run_factcheck(pack_dir: Path, base: Path | None = None) -> dict:
     violaciones.extend(check_huerfanas(pack_dir))
     violaciones.extend(check_certs_render(pack_dir))
     violaciones.extend(check_tono_publico(named))
+    violaciones.extend(check_presentacion_calidad(named, cv))
 
     unique_metrics = {norm(m) for m in METRIC_RE.findall(combined or "") if norm(m)}
     tech_total = len([c for c in (cv.get("competencias") or []) if c]) if cv else 0

@@ -11,13 +11,50 @@ sys.path.insert(0, str(ROOT / "tests"))
 
 from helpers import write_vault  # noqa: E402
 from paths import BASE, PLANTILLAS  # noqa: E402
-from scaffold_defaults import scaffold  # noqa: E402
+from scaffold_defaults import _texto_evidencia, scaffold  # noqa: E402
 from validate_base import validate  # noqa: E402
+from common import is_echo_text  # noqa: E402
 
 
 class DefaultCvTests(unittest.TestCase):
     def test_vault_vacio_del_kit(self) -> None:
         self.assertEqual(validate(BASE, PLANTILLAS), 2)
+
+    def test_texto_evidencia_omite_eco(self) -> None:
+        texto = _texto_evidencia(
+            {
+                "accion": "Implementé X en Y",
+                "resultado": "Implementé X en Y",
+            }
+        )
+        self.assertEqual(texto, "Implementé X en Y")
+        self.assertNotIn(". ", texto)
+
+    def test_texto_evidencia_concatena_resultado_distinto(self) -> None:
+        texto = _texto_evidencia(
+            {
+                "accion": "Implementé interfaces con Angular",
+                "resultado": "Reduje el tiempo de carga percibido",
+            }
+        )
+        self.assertEqual(
+            texto,
+            "Implementé interfaces con Angular. Reduje el tiempo de carga percibido",
+        )
+
+    def test_texto_evidencia_conserva_elaboracion_star(self) -> None:
+        """Contención corta⊂larga no es eco: no tirar el resultado útil."""
+        texto = _texto_evidencia(
+            {
+                "accion": "Implementé X",
+                "resultado": "Implementé X en producción con monitoreo",
+            }
+        )
+        self.assertIn("producción", texto)
+        self.assertIn("monitoreo", texto)
+        self.assertFalse(
+            is_echo_text("Implementé X", "Implementé X en producción con monitoreo")
+        )
 
     def test_vault_temporal_ok_tras_scaffold(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

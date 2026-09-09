@@ -67,6 +67,11 @@ def classify(keyword: str, aliases: dict, terms: set[str]) -> str:
 
 
 def cv_blob(cv: dict) -> tuple[str, str]:
+    """Texto de competencias y de bullets (experiencia + proyectos).
+
+    Perfil/headline no cuentan como bullets: la cobertura doble T1 exige
+    el término en competencias y en al menos un bullet real.
+    """
     skills = " ".join(cv.get("competencias") or [])
     bullets: list[str] = []
     for rol in cv.get("experiencia") or []:
@@ -75,8 +80,6 @@ def cv_blob(cv: dict) -> tuple[str, str]:
     for proj in cv.get("proyectos") or []:
         for b in proj.get("bullets") or []:
             bullets.append(b.get("texto") if isinstance(b, dict) else str(b))
-    bullets.append(cv.get("perfil") or "")
-    bullets.append(cv.get("headline") or "")
     return skills, " ".join(bullets)
 
 

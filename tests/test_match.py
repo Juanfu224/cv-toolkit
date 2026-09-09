@@ -140,6 +140,30 @@ class VeredictoTests(unittest.TestCase):
         self.assertNotEqual(v["resultado"], "no_aplicar")
         self.assertFalse(any("certificaciones" in m for m in v["motivos"]))
 
+    def test_t1_solo_en_perfil_sigue_huerfana(self) -> None:
+        """Perfil/headline no cierran cobertura doble: hace falta bullet real."""
+        jd = _jd(t1=["Angular", "TypeScript"])
+        cv = {
+            "headline": "Desarrollador Angular",
+            "perfil": "Especialista en Angular y TypeScript para interfaces ATS",
+            "competencias": ["Angular", "TypeScript", "HTML"],
+            "experiencia": [
+                {
+                    "empresa": "Empresa A",
+                    "titulo": "Dev",
+                    "bullets": [
+                        {
+                            "texto": "Consultar datos con SQL en reportes internos",
+                            "evidencia_id": "ev-03",
+                        }
+                    ],
+                }
+            ],
+        }
+        gaps, _v = run_match(jd, cv=cv, base_dir=self.base)
+        self.assertIn("Angular", gaps["huerfanas"])
+        self.assertIn("TypeScript", gaps["huerfanas"])
+
 
 if __name__ == "__main__":
     unittest.main()

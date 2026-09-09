@@ -34,6 +34,41 @@ def tokens(text: str) -> list[str]:
     return n.split() if n else []
 
 
+def token_jaccard(a: str, b: str) -> float:
+    sa, sb = set(tokens(a)), set(tokens(b))
+    if not sa or not sb:
+        return 0.0
+    return len(sa & sb) / len(sa | sb)
+
+
+def is_echo_text(a: str, b: str, threshold: float = 0.7) -> bool:
+    """True si b ≈ a (igualdad, contención de longitud similar, o Jaccard ≥ threshold).
+
+    Contención solo cuenta si min/max longitud normalizada ≥ 0.85, para no
+    tratar elaboraciones STAR (acción ⊂ resultado más largo) como eco.
+    """
+    na, nb = norm(a), norm(b)
+    if not na or not nb:
+        return False
+    if na == nb:
+        return True
+    shorter, longer = (na, nb) if len(na) <= len(nb) else (nb, na)
+    if shorter in longer and len(shorter) / len(longer) >= 0.85:
+        return True
+    return token_jaccard(a, b) >= threshold
+
+
+def is_echo_bullet(texto: str, threshold: float = 0.7) -> bool:
+    """True si un bullet tiene cláusulas consecutivas que se parafrasean."""
+    parts = [p.strip().rstrip(".") for p in re.split(r"\.\s+", texto or "") if p.strip()]
+    if len(parts) < 2:
+        return False
+    for i in range(len(parts) - 1):
+        if is_echo_text(parts[i], parts[i + 1], threshold=threshold):
+            return True
+    return False
+
+
 def contains_seq(haystack: list[str], needle: list[str]) -> bool:
     if not needle or not haystack or len(needle) > len(haystack):
         return False

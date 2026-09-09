@@ -1,6 +1,6 @@
 # SPEC.md — CV Toolkit
 
-**Versión:** 0.6 — 2026-09-09
+**Versión:** 0.6.4 — 2026-09-09
 **Estado:** Aprobado
 
 > Contrato de dominio inmutable durante una tarea activa. El código se deriva de aquí, no al revés.
@@ -19,7 +19,7 @@ Herramienta local para adaptar un CV ATS de una columna a cada oferta laboral a 
 5. CLI unificada: `scripts/cvtool.py` (doctor, status, init, validate, validate-jd, ingest-jd, scaffold, match, pack, render, verify, factcheck, refresh, copy, salary, respuestas, empresa, basename, tablero, test) y `scripts/demo_smoke.sh`.
 6. Empaquetar el CV adaptado con máxima densidad de señal en ≤1 página A4 (`cvtool pack`) sin inventar hechos ni degradar tipografía ATS.
 7. Ingesta de JD público (Greenhouse / Ashby / Lever, GET JSON allowlist, sin login). Host no allowlist → pegar texto en `oferta/`.
-8. Comprobación factual (`cvtool factcheck`) antes de `copy`: métricas, empleadores, tecnologías, clichés, `evidencia_id` en bullets, `huerfanas` de `gaps.yaml` (si existe), certificaciones sin literal `None`, y presentación que no abra con «No tengo»; `copy` exige `factcheck.yaml` `ok: true` y `meta.pack_estado: aprobado` (salvo `--force` HITL).
+8. Comprobación factual (`cvtool factcheck`) antes de `copy`: métricas, empleadores, tecnologías, clichés, `evidencia_id` en bullets, `huerfanas` de `gaps.yaml` (si existe), certificaciones sin literal `None`, presentación sin abrir con ausencias ni CTA muerto / gap-formativo en cuerpo / skills-dump, eco acción≈resultado en bullets, y perfil que no sea lista de competencias; `copy` exige `factcheck.yaml` `ok: true` y `meta.pack_estado: aprobado` (salvo `--force` HITL).
 9. Pack HITL en disco: `meta.pack_estado` ∈ {pendiente, aprobado, editado, rechazado}; tras editar → `cvtool refresh` → `editado` y re-aprobación a `aprobado` antes de `copy`.
 ### Objetivos no funcionales
 - Latencia p95: N/A (CLI local batch)
@@ -28,7 +28,7 @@ Herramienta local para adaptar un CV ATS de una columna a cada oferta laboral a 
 - Privacidad: PII solo en `base/` y artefactos generados locales; no publicar vault; no autoenviar a portales; no embeddings del vault
 - Idempotencia: misma empresa+puesto el mismo día reutiliza carpeta de candidatura; otra fecha → carpeta nueva
 - Densidad CV: ≤1 página A4; priorizar keywords T1, resultados y recencia frente a padding; CSS ATS fijo (sin comprimir tipografía)
-- Carta: `presentacion.md` ≤250 palabras, centrada en el candidato (sin intro de empresa ni lead de ausencias); `outreach.md` ≤80 palabras, un destinatario, no envío automático
+- Carta: `presentacion.md` ≤250 palabras, centrada en el candidato (gancho diferenciador + proof del vault distinto al perfil + CTA vivo; sin intro de empresa, sin gaps/formativo en el cuerpo, sin CTA comodín ni dump de skills); `outreach.md` ≤80 palabras, un destinatario, no envío automático
 - Certificaciones en vault/CV: `{nombre, entidad?}`; `titulo` se normaliza; no renderizar placeholders como `None`
 ### Fuera de alcance
 - Auto-aplicación a InfoJobs u otros portales
@@ -122,7 +122,7 @@ Qué **debe fallar** si se rompe el contrato:
 | PDF ATS | `cvtool verify` |
 | Pack ≤1 página | `cvtool pack` + tests de ranking / e2e |
 | Ingesta ATS pública (sin red) | fixtures JSON → `ingest-jd --from-file`; host no allowlist → exit 2 |
-| Factcheck | métrica inventada / cliché / sin `evidencia_id` / `huerfanas` / certs `None` / presentación «No tengo…» → `ok: false`; `copy` sin gates o con `pack_estado` ≠ aprobado → bloqueado; `--force` omite |
+| Factcheck | métrica inventada / cliché / sin `evidencia_id` / `huerfanas` / certs `None` / presentación «No tengo…» / eco en bullet / perfil = lista de skills / presentación con CTA muerto, gap-formativo en cuerpo o skills-dump → `ok: false`; cobertura doble T1 = competencias + bullets de experiencia/proyectos (perfil/headline no cuentan); `copy` sin gates o con `pack_estado` ≠ aprobado → bloqueado; `--force` omite |
 | Refresh tras editar | `cvtool refresh` regenera PDF y deja `pack_estado: editado` |
 | E2E ejemplos | `tests/test_e2e_ejemplos.py` (vault-minimo + oferta-demo) |
 | Política de agentes | `sh scripts/verify-agent-policy.sh` |

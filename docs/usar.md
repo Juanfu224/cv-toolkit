@@ -43,7 +43,7 @@ Sin CV propio: [`ejemplos/`](../ejemplos/README.md) o `sh scripts/demo_smoke.sh`
 4. Envía al portal (InfoJobs, LinkedIn, email…). El outreach es un borrador: lo envías tú.
 5. **registrar envío**.
 
-La presentación va centrada en ti (encaje + evidencia + CTA), no en una intro de la empresa ni en lo que te falta.
+La presentación va centrada en ti (diferenciador + proof del vault + CTA vivo), no en una intro de la empresa, un dump de tools ni en lo que te falta.
 Si cambió un hecho real (salario, proyecto, skill): **actualizar base** antes de la siguiente oferta.
 
 ## Veredicto y `--forzar`
@@ -132,7 +132,7 @@ Antes del match: `cvtool validate-jd path/jd.yaml`. Tras HITL: `cvtool match …
 | Vault vacío | CV en `base/origen/` → **inicializa mi base** |
 | `no_aplicar` | Lee `veredicto.yaml`; fuerza solo si aceptas el gap (`--forzar`) |
 | PDF > 1 página o tras editar el pack | `cvtool refresh --dir candidaturas/<slug>` (pack+render+verify+factcheck) |
-| `factcheck` no ok | Corrige métrica/tech/cliché/`evidencia_id`/`huerfanas`/tono/`None` en certs; no copies a `cv/` |
+| `factcheck` no ok | Corrige métrica/tech/cliché/`evidencia_id`/`huerfanas`/tono/`None` en certs/`eco` (eco en bullet)/`perfil` (lista de skills)/CTA muerto o gap-formativo o skills-dump en presentación; no copies a `cv/` |
 | `copy` bloquea | Falta factcheck ok o `pack_estado: aprobado` en `meta.yaml` (HITL) |
 
 ## FAQ

@@ -48,9 +48,9 @@ headline: string
 perfil: string
 evidencias_usar: [id]      # ordenadas de mayor a menor impacto para la oferta
 evidencias_ocultar: [id]
-t1_en_resumen: [string]
+t1_en_resumen: [string]    # T1 en prosa del perfil (encaje narrativo; no catálogo de tools)
 t1_en_skills: [string]
-t1_en_bullets: [string]
+t1_en_bullets: [string]    # T1 en bullets de experiencia/proyectos (no perfil/headline)
 orden_secciones: [string]
 mitigacion_gaps: string    # solo entrevista.md / analisis.md / chat HITL; nunca CV ni lead de presentación/respuestas
 ```
@@ -60,6 +60,8 @@ mitigacion_gaps: string    # solo entrevista.md / analisis.md / chat HITL; nunca
 Ver `plantillas/cv_default_<familia>.yaml`. Cada bullet: `{texto, evidencia_id}`.
 Competencias: 8–15 términos de esta oferta que existan en `base/skills.yaml`.
 Headline: título de la oferta solo si está en `perfil.titulos_defendibles` o es un sinónimo honesto (nunca Senior/Arquitecto).
+`perfil`: 2–4 frases de encaje (qué haces + 1–2 pruebas), no catálogo de tools/skills.
+Bullets: verbo + contexto + resultado distinto (o alcance); una idea; sin eco acción→resultado.
 Draft: puede ser generoso (hasta ~5 bullets/rol reciente); `cvtool pack` deja ≤1 página.
 
 Certificaciones (canónico; `titulo` se acepta en lectura y se normaliza a `nombre`):
@@ -183,6 +185,10 @@ equipo_receptor: string | null   # literal del JD o meta humana
 
 Si no hay fuente: `sin_hechos_verificables: true` y `hechos: []`.
 
+## presentacion.md
+
+Tres párrafos listos para pegar (sin títulos markdown), ≤250 palabras. Intención: P1 gancho diferenciador (encaje JD + ángulo único del vault), P2 proof distinto al `cv.perfil`, P3 CTA vivo. Guía: `plantillas/presentacion.md.j2`. Factcheck `tono` también cubre CTA muerto, gap/formativo en el cuerpo y skills-dump.
+
 ## outreach.md
 
 Borrador ≤80 palabras, 1 CTA, 1 destinatario. El humano copia a LinkedIn/email. Guía: `plantillas/outreach.md.j2`.
@@ -197,9 +203,9 @@ confianza: float   # claims soportados / total; 1.0 si no hay claims
 presentacion_palabras: int | null
 outreach_palabras: int | null
 violaciones:
-  - tipo: metrica | tecnologia | empleador | longitud | empresa | cliche | huerfana | evidencia_id | certificacion | tono
+  - tipo: metrica | tecnologia | empleador | longitud | empresa | cliche | huerfana | evidencia_id | certificacion | tono | eco | perfil
     dato: string
     detalle: string
 ```
 
-`ok: false` (métrica huérfana, `confianza < 1.0`, carta >250, outreach >80, certs `None` en curriculum, presentación que abre con «No tengo») → no `copy`.
+`ok: false` (métrica huérfana, `confianza < 1.0`, carta >250, outreach >80, certs `None` en curriculum, presentación que abre con «No tengo», eco en bullets, perfil = lista de competencias, presentación con CTA muerto / gap-en-carta / skills-dump) → no `copy`.

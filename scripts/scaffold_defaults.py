@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import dump_yaml, load_yaml, normalize_certs
+from common import dump_yaml, is_echo_text, load_yaml, normalize_certs
 from familias import load_familias
 from paths import BASE, PLANTILLAS
 
@@ -18,11 +18,17 @@ def _rol_en_familia(rol: dict, familia: str) -> bool:
 
 
 def _texto_evidencia(ev: dict) -> str:
+    """Bullet preferido: verbo + contexto + resultado distinto (o alcance).
+
+    Si ``resultado`` es eco de ``accion``, no concatenar (anti-tono mecánico).
+    """
     accion = (ev.get("accion") or "").rstrip(".")
-    resultado = ev.get("resultado")
-    if resultado:
-        return f"{accion}. {resultado}".rstrip(".")
-    return accion
+    resultado = (ev.get("resultado") or "").strip().rstrip(".")
+    if not resultado:
+        return accion
+    if is_echo_text(accion, resultado):
+        return accion
+    return f"{accion}. {resultado}"
 
 
 def _fecha_corta(value) -> str:

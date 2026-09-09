@@ -53,7 +53,7 @@ DEMO_JD = {
 PRES_OK = (
     "Desarrollador web con Angular y TypeScript en Empresa A. "
     "He construido interfaces y APIs REST con HTML, CSS y SQL. "
-    "Puedo avanzar el stack del puesto esta misma semana."
+    "¿15 minutos para contrastar el stack del anuncio?"
 )
 
 
