@@ -300,6 +300,56 @@ def check_huerfanas(pack_dir: Path) -> list[dict]:
     ]
 
 
+NONE_CERT_RE = re.compile(
+    r"(?im)^##\s*Certificaciones\s*\n+(?:.*\bNone\b|None\s*·)"
+)
+NO_TENGO_OPEN_RE = re.compile(r"(?is)^\s*No tengo\b")
+
+
+def check_certs_render(pack_dir: Path) -> list[dict]:
+    """Rechaza curriculum.md con 'None' en certificaciones (bug titulo→nombre)."""
+    path = pack_dir / "curriculum.md"
+    if not path.exists():
+        return []
+    text = path.read_text(encoding="utf-8")
+    if NONE_CERT_RE.search(text) or re.search(
+        r"(?im)^##\s*Certificaciones\s*\n+\s*None\b", text
+    ):
+        return [
+            {
+                "tipo": "certificacion",
+                "dato": "curriculum.md",
+                "detalle": "certificaciones renderizadas como None (usar nombre/titulo válido)",
+            }
+        ]
+    # También: literal "None ·" en cualquier parte del MD (caso clásico)
+    if "None ·" in text or "· None" in text:
+        return [
+            {
+                "tipo": "certificacion",
+                "dato": "curriculum.md",
+                "detalle": "aparece 'None' en la línea de certificaciones",
+            }
+        ]
+    return []
+
+
+def check_presentacion_tono(named: dict[str, str]) -> list[dict]:
+    """Presentación pública no debe abrir enfatizando ausencias."""
+    text = named.get("presentacion.md")
+    if text is None:
+        return []
+    if NO_TENGO_OPEN_RE.match(text):
+        return [
+            {
+                "tipo": "tono",
+                "dato": "presentacion.md",
+                "detalle": "abre con 'No tengo'; lead con fortalezas del candidato",
+            }
+        ]
+    return []
+
+
 def load_vault(base: Path) -> dict[str, Any]:
     return {
         "perfil": load_yaml(base / "perfil.yaml"),
@@ -327,6 +377,8 @@ def run_factcheck(pack_dir: Path, base: Path | None = None) -> dict:
     violaciones.extend(check_empresa(pack_dir))
     violaciones.extend(check_cliches(combined))
     violaciones.extend(check_huerfanas(pack_dir))
+    violaciones.extend(check_certs_render(pack_dir))
+    violaciones.extend(check_presentacion_tono(named))
 
     unique_metrics = {norm(m) for m in METRIC_RE.findall(combined or "") if norm(m)}
     tech_total = len([c for c in (cv.get("competencias") or []) if c]) if cv else 0

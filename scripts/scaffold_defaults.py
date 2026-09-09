@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import dump_yaml, load_yaml
+from common import dump_yaml, load_yaml, normalize_certs
 from familias import load_familias
 from paths import BASE, PLANTILLAS
 
@@ -130,7 +130,8 @@ def scaffold_familia(
                 }
             )
     secciones += ["formacion", "idiomas"]
-    if perfil.get("certificaciones"):
+    certificaciones = normalize_certs(perfil.get("certificaciones") or [])
+    if certificaciones:
         secciones.append("certificaciones")
 
     headline = perfil.get("headline_base") or (perfil.get("titulos_defendibles") or [""])[0]
@@ -149,7 +150,7 @@ def scaffold_familia(
         "proyectos": proyectos,
         "formacion": _formacion(perfil),
         "idiomas": perfil.get("idiomas") or [],
-        "certificaciones": perfil.get("certificaciones") or [],
+        "certificaciones": certificaciones,
     }
 
 

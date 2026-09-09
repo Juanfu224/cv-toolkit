@@ -19,26 +19,16 @@ def extract(path: Path) -> str:
     return "\n".join(parts)
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description="Comprueba el orden de lectura del PDF")
-    parser.add_argument("pdf", type=Path)
-    parser.add_argument("--out", type=Path, help="Guarda el texto extraído")
-    args = parser.parse_args()
-
-    if not args.pdf.exists():
-        raise SystemExit(f"no existe {args.pdf}")
-
-    perfil = load_yaml(BASE / "perfil.yaml")
+def verify_ats(pdf: Path, perfil: dict | None = None) -> list[str]:
+    """Devuelve lista de errores ATS (vacía = OK)."""
+    if perfil is None:
+        perfil = load_yaml(BASE / "perfil.yaml")
     nombre = norm(perfil.get("nombre") or "")
     ciudad = norm((perfil.get("contacto") or {}).get("ciudad") or "")
 
-    reader = PdfReader(str(args.pdf))
-    text = extract(args.pdf)
+    reader = PdfReader(str(pdf))
+    text = extract(pdf)
     blob = " ".join(text.lower().split())
-    if args.out:
-        if not is_allowed_output(args.out):
-            raise SystemExit("--out fuera del repo o tmp")
-        args.out.write_text(text, encoding="utf-8")
 
     errors: list[str] = []
     if len(reader.pages) > 1:
@@ -60,6 +50,25 @@ def main() -> int:
 
     if "@" not in blob:
         errors.append("no aparece email")
+    return errors
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Comprueba el orden de lectura del PDF")
+    parser.add_argument("pdf", type=Path)
+    parser.add_argument("--out", type=Path, help="Guarda el texto extraído")
+    args = parser.parse_args()
+
+    if not args.pdf.exists():
+        raise SystemExit(f"no existe {args.pdf}")
+
+    if args.out:
+        if not is_allowed_output(args.out):
+            raise SystemExit("--out fuera del repo o tmp")
+        args.out.write_text(extract(args.pdf), encoding="utf-8")
+
+    errors = verify_ats(args.pdf)
+    reader = PdfReader(str(args.pdf))
 
     if errors:
         print("verify_pdf: FAIL")

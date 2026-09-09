@@ -103,6 +103,7 @@ class CvtoolHelpTests(unittest.TestCase):
         self.assertIn("ingest-jd", proc.stdout)
         self.assertIn("factcheck", proc.stdout)
         self.assertIn("empresa", proc.stdout)
+        self.assertIn("refresh", proc.stdout)
 
 
 class SkillContractTests(unittest.TestCase):
@@ -118,6 +119,7 @@ class SkillContractTests(unittest.TestCase):
         self.assertIn("≤250", skill)
         self.assertIn("ingest-jd", skill)
         self.assertIn("Silencio ≠ sí", skill)
+        self.assertIn("refresh", skill)
         self.assertNotIn("--require-factcheck", skill)
 
 

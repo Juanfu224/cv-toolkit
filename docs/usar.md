@@ -39,10 +39,11 @@ Sin CV propio: [`ejemplos/`](../ejemplos/README.md) o `sh scripts/demo_smoke.sh`
 
 1. Pega la oferta nueva en `oferta/` (pisar el buzón está bien) o da una URL pública de Greenhouse/Ashby/Lever.
 2. **genera candidatura**.
-3. Revisa veredicto, factcheck, PDF/DOCX y presentación. **Aprueba, edita o rechaza** antes de que se copie a `cv/`.
+3. Revisa veredicto, factcheck, PDF/DOCX y presentación. **Aprueba, edita o rechaza** antes de que se copie a `cv/`. Si editas, el agente debe correr `cvtool refresh --dir candidaturas/<slug>/` para regenerar PDF y artefactos (no dejar el pack viejo).
 4. Envía al portal (InfoJobs, LinkedIn, email…). El outreach es un borrador: lo envías tú.
 5. **registrar envío**.
 
+La presentación va centrada en ti (encaje + evidencia + CTA), no en una intro de la empresa ni en lo que te falta.
 Si cambió un hecho real (salario, proyecto, skill): **actualizar base** antes de la siguiente oferta.
 
 ## Veredicto y `--forzar`

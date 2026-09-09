@@ -85,3 +85,43 @@ def contact_links(contacto: dict | None) -> list[str]:
         if url:
             out.append(url)
     return out
+
+
+def cert_label(item) -> str | None:
+    """Etiqueta legible de una certificación (`nombre` canónico; `titulo` compat)."""
+    if isinstance(item, str):
+        text = item.strip()
+        return None if is_placeholder(text) else text
+    if not isinstance(item, dict):
+        return None
+    raw = item.get("nombre")
+    if is_placeholder(raw):
+        raw = item.get("titulo")
+    if is_placeholder(raw):
+        return None
+    text = str(raw).strip()
+    return text or None
+
+
+def normalize_cert(item) -> dict | None:
+    """Normaliza a `{nombre, entidad?}`; None si es placeholder o vacío."""
+    label = cert_label(item)
+    if not label:
+        return None
+    out: dict = {"nombre": label}
+    if isinstance(item, dict):
+        entidad = item.get("entidad")
+        if entidad is not None and not is_placeholder(entidad):
+            text = str(entidad).strip()
+            if text:
+                out["entidad"] = text
+    return out
+
+
+def normalize_certs(items) -> list[dict]:
+    out: list[dict] = []
+    for item in items or []:
+        normalized = normalize_cert(item)
+        if normalized:
+            out.append(normalized)
+    return out

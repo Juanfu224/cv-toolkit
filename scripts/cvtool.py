@@ -286,6 +286,13 @@ def cmd_respuestas(args: argparse.Namespace) -> int:
     )
 
 
+def cmd_refresh(args: argparse.Namespace) -> int:
+    cmd = [PY, str(SCRIPTS / "refresh_pack.py"), "--dir", str(args.dir)]
+    if args.base:
+        cmd.extend(["--base", str(args.base)])
+    return _run(cmd)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="CLI del sistema de candidaturas")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -347,6 +354,13 @@ def main() -> int:
     p_fc.add_argument("--base", type=Path)
     p_fc.add_argument("--out", type=Path)
 
+    p_refresh = sub.add_parser(
+        "refresh",
+        help="Re-empaqueta candidaturas/<slug>/ tras editar (pack→render→verify→factcheck)",
+    )
+    p_refresh.add_argument("--dir", required=True, type=Path)
+    p_refresh.add_argument("--base", type=Path)
+
     p_emp = sub.add_parser("empresa", help="Renderiza empresa.md desde empresa.yaml")
     p_emp.add_argument("--data", required=True, type=Path)
     p_emp.add_argument("--out", required=True, type=Path)
@@ -407,6 +421,7 @@ def main() -> int:
         "copy": cmd_copy,
         "ingest-jd": cmd_ingest_jd,
         "factcheck": cmd_factcheck,
+        "refresh": cmd_refresh,
         "empresa": cmd_empresa,
         "respuestas": cmd_respuestas,
         "verify": cmd_verify,

@@ -8,7 +8,7 @@ from jinja2 import Environment, FileSystemLoader
 from weasyprint import CSS, HTML
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import contact_links, load_yaml
+from common import contact_links, load_yaml, normalize_certs
 from paths import BASE, PLANTILLAS, is_allowed_output
 
 
@@ -18,10 +18,18 @@ from docx.oxml.ns import qn
 from docx.shared import Cm, Pt
 
 
-def apply_perfil(cv: dict) -> dict:
-    perfil = load_yaml(BASE / "perfil.yaml")
+def apply_perfil(cv: dict, base: Path | None = None) -> dict:
+    perfil = load_yaml((base or BASE) / "perfil.yaml")
     cv["nombre"] = perfil["nombre"]
     cv["contacto"] = perfil["contacto"]
+    certs = normalize_certs(perfil.get("certificaciones") or [])
+    cv["certificaciones"] = certs
+    secs = list(cv.get("secciones") or [])
+    if certs and "certificaciones" not in secs:
+        secs.append("certificaciones")
+    elif not certs:
+        secs = [s for s in secs if s != "certificaciones"]
+    cv["secciones"] = secs
     return cv
 
 
@@ -44,12 +52,9 @@ def idiomas_linea(cv: dict) -> str:
 
 def certs_linea(cv: dict) -> str:
     parts = []
-    for item in cv.get("certificaciones") or []:
-        if isinstance(item, dict):
-            entidad = f" ({item['entidad']})" if item.get("entidad") else ""
-            parts.append(f"{item.get('nombre')}{entidad}")
-        else:
-            parts.append(str(item))
+    for item in normalize_certs(cv.get("certificaciones") or []):
+        entidad = f" ({item['entidad']})" if item.get("entidad") else ""
+        parts.append(f"{item['nombre']}{entidad}")
     return " · ".join(parts)
 
 
@@ -98,8 +103,10 @@ def to_markdown(cv: dict) -> str:
             lines.append("")
         elif seccion == "idiomas":
             lines += ["## Idiomas", "", idiomas_linea(cv), ""]
-        elif seccion == "certificaciones" and cv.get("certificaciones"):
-            lines += ["## Certificaciones", "", certs_linea(cv), ""]
+        elif seccion == "certificaciones":
+            linea = certs_linea(cv)
+            if linea:
+                lines += ["## Certificaciones", "", linea, ""]
     return "\n".join(lines).rstrip() + "\n"
 
 
@@ -211,11 +218,13 @@ def to_docx(cv: dict, dest: Path) -> None:
             p = doc.add_paragraph()
             run = p.add_run(idiomas_linea(cv))
             set_run_font(run, 10.5)
-        elif seccion == "certificaciones" and cv.get("certificaciones"):
-            add_heading_docx(doc, "Certificaciones")
-            p = doc.add_paragraph()
-            run = p.add_run(certs_linea(cv))
-            set_run_font(run, 10.5)
+        elif seccion == "certificaciones":
+            linea = certs_linea(cv)
+            if linea:
+                add_heading_docx(doc, "Certificaciones")
+                p = doc.add_paragraph()
+                run = p.add_run(linea)
+                set_run_font(run, 10.5)
 
     for p in doc.paragraphs:
         p.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.LEFT

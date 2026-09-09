@@ -208,6 +208,39 @@ class FactcheckTests(unittest.TestCase):
                 any(v["tipo"] == "huerfana" for v in report["violaciones"])
             )
 
+    def test_certs_none_en_curriculum_falla(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base = write_vault(root)
+            pack = root / "pack"
+            pack.mkdir()
+            dump_yaml(pack / "cv.yaml", _cv())
+            (pack / "curriculum.md").write_text(
+                "# Test\n\n## Certificaciones\n\nNone · None · None\n",
+                encoding="utf-8",
+            )
+            report = run_factcheck(pack, base)
+            self.assertFalse(report["ok"])
+            self.assertTrue(
+                any(v["tipo"] == "certificacion" for v in report["violaciones"])
+            )
+
+    def test_presentacion_abre_con_no_tengo_falla(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base = write_vault(root)
+            pack = root / "pack"
+            pack.mkdir()
+            dump_yaml(pack / "cv.yaml", _cv())
+            (pack / "presentacion.md").write_text(
+                "No tengo experiencia en DOORS ni sector aeronáutico. "
+                "Sí Angular y TypeScript en Empresa A.",
+                encoding="utf-8",
+            )
+            report = run_factcheck(pack, base)
+            self.assertFalse(report["ok"])
+            self.assertTrue(any(v["tipo"] == "tono" for v in report["violaciones"]))
+
 
 if __name__ == "__main__":
     unittest.main()

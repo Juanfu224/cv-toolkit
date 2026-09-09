@@ -52,7 +52,7 @@ t1_en_resumen: [string]
 t1_en_skills: [string]
 t1_en_bullets: [string]
 orden_secciones: [string]
-mitigacion_gaps: string    # solo presentación/respuestas/outreach; nunca el CV
+mitigacion_gaps: string    # solo entrevista.md / analisis.md / chat HITL; nunca CV ni lead de presentación/respuestas
 ```
 
 ## cv.yaml
@@ -61,6 +61,14 @@ Ver `plantillas/cv_default_<familia>.yaml`. Cada bullet: `{texto, evidencia_id}`
 Competencias: 8–15 términos de esta oferta que existan en `base/skills.yaml`.
 Headline: título de la oferta solo si está en `perfil.titulos_defendibles` o es un sinónimo honesto (nunca Senior/Arquitecto).
 Draft: puede ser generoso (hasta ~5 bullets/rol reciente); `cvtool pack` deja ≤1 página.
+
+Certificaciones (canónico; `titulo` se acepta en lectura y se normaliza a `nombre`):
+
+```yaml
+certificaciones:
+  - nombre: string          # obligatorio (no null/none/pendiente)
+    entidad: string | null  # opcional
+```
 
 ## pack_report.yaml
 
@@ -187,9 +195,9 @@ confianza: float   # claims soportados / total; 1.0 si no hay claims
 presentacion_palabras: int | null
 outreach_palabras: int | null
 violaciones:
-  - tipo: metrica | tecnologia | empleador | longitud | empresa
+  - tipo: metrica | tecnologia | empleador | longitud | empresa | cliche | huerfana | evidencia_id | certificacion | tono
     dato: string
     detalle: string
 ```
 
-`ok: false` (métrica huérfana, `confianza < 1.0`, carta >250 palabras, outreach >80) → no `copy`.
+`ok: false` (métrica huérfana, `confianza < 1.0`, carta >250, outreach >80, certs `None` en curriculum, presentación que abre con «No tengo») → no `copy`.

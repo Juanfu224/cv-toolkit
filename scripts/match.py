@@ -5,7 +5,15 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import dump_yaml, load_yaml, norm, phrase_in_terms, phrase_in_text, tokens
+from common import (
+    cert_label,
+    dump_yaml,
+    load_yaml,
+    norm,
+    phrase_in_terms,
+    phrase_in_text,
+    tokens,
+)
 from paths import BASE, is_allowed_output
 from validate_jd import validate_jd
 
@@ -33,8 +41,9 @@ def vault_terms(perfil: dict, skills: dict, evidencias_doc: dict) -> set[str]:
     for t in perfil.get("titulos_defendibles") or []:
         terms.add(norm(t))
     for cert in perfil.get("certificaciones") or []:
-        if cert.get("nombre"):
-            terms.add(norm(cert["nombre"]))
+        label = cert_label(cert)
+        if label:
+            terms.add(norm(label))
     return terms
 
 
@@ -92,7 +101,11 @@ def same_area(jd_ciudad: str, constraints: dict) -> bool:
 
 
 def cert_ok(required: list[str], perfil: dict) -> tuple[bool, list[str]]:
-    have = {norm(c.get("nombre", "")) for c in perfil.get("certificaciones") or []}
+    have = set()
+    for c in perfil.get("certificaciones") or []:
+        label = cert_label(c)
+        if label:
+            have.add(norm(label))
     missing = [c for c in required if c and not phrase_in_terms(c, have)]
     return not missing, missing
 

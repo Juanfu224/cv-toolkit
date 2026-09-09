@@ -121,6 +121,25 @@ class VeredictoTests(unittest.TestCase):
         self.assertEqual(veredicto["resultado"], "no_aplicar")
         self.assertTrue(any("must_have" in m for m in veredicto["motivos"]))
 
+    def test_cert_obligatoria_con_titulo_en_vault(self) -> None:
+        from common import dump_yaml, load_yaml
+        from match import cert_ok
+
+        perfil = load_yaml(self.base / "perfil.yaml")
+        perfil["certificaciones"] = [{"titulo": "AWS Solutions Architect"}]
+        dump_yaml(self.base / "perfil.yaml", perfil)
+        ok, missing = cert_ok(["AWS Solutions Architect"], perfil)
+        self.assertTrue(ok)
+        self.assertEqual(missing, [])
+        jd = _jd(
+            t1=["TypeScript", "Angular", "SQL", "PHP", "HTML", "CSS"],
+            must_have=["TypeScript"],
+            certificaciones_obligatorias=["AWS Solutions Architect"],
+        )
+        _g, v = run_match(jd, base_dir=self.base)
+        self.assertNotEqual(v["resultado"], "no_aplicar")
+        self.assertFalse(any("certificaciones" in m for m in v["motivos"]))
+
 
 if __name__ == "__main__":
     unittest.main()
