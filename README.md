@@ -45,7 +45,7 @@ Si `doctor` falla en PDF / WeasyPrint → [Instalación](docs/usar.md#instalaci�
 1. Copia tu CV a [`base/origen/curriculum.md`](base/origen/curriculum.md) (o PDF con texto seleccionable). Si tienes presentación (carta o bio), déjala también en [`base/origen/presentacion.md`](base/origen/presentacion.md).
 2. En tu agente: **inicializa mi base**.
 3. Pega la oferta en [`oferta/descripcion.md`](oferta/descripcion.md) (o una URL pública Greenhouse/Ashby/Lever) → **genera candidatura**.
-4. Revisa, **aprueba** el pack y envía tú el PDF/DOCX de `cv/` o `candidaturas/…`.
+4. Revisa el pack. Si editas, el agente corre `cvtool refresh` y vuelves a **aprobar**; luego envías tú el PDF/DOCX de `cv/` o `candidaturas/…`.
 5. Di **registrar envío**.
 
 ¿Sin CV a mano? `sh scripts/demo_smoke.sh` o [`ejemplos/`](ejemplos/README.md).

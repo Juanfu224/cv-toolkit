@@ -356,7 +356,10 @@ def main() -> int:
 
     p_refresh = sub.add_parser(
         "refresh",
-        help="Re-empaqueta candidaturas/<slug>/ tras editar (pack→render→verify→factcheck)",
+        help=(
+            "Re-empaqueta candidaturas/<slug>/ tras editar "
+            "(pack→render→verify→match→respuestas→factcheck)"
+        ),
     )
     p_refresh.add_argument("--dir", required=True, type=Path)
     p_refresh.add_argument("--base", type=Path)

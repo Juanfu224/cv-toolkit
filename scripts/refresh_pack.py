@@ -35,6 +35,14 @@ def _meta_puesto_empresa(pack_dir: Path) -> tuple[str, str]:
     return puesto or "Puesto", empresa or "Empresa"
 
 
+def _mark_editado(pack_dir: Path) -> None:
+    meta_path = pack_dir / "meta.yaml"
+    meta = load_yaml(meta_path) if meta_path.exists() else {}
+    meta["pack_estado"] = "editado"
+    meta["listo_para_enviar"] = False
+    dump_yaml(meta_path, meta)
+
+
 def refresh_pack(pack_dir: Path, base: Path | None = None) -> dict:
     """Re-empaqueta el pack tras una edición HITL. Deja pack_estado=editado."""
     base = base or BASE
@@ -71,10 +79,15 @@ def refresh_pack(pack_dir: Path, base: Path | None = None) -> dict:
             if src.exists():
                 shutil.copy2(src, pack_dir / f"{send}{ext}")
 
-    verify_errors = verify_ats(pdf_path, perfil)
     extract_path = pack_dir / "_extract.txt"
-    extract_path.write_text(extract(pdf_path), encoding="utf-8")
+    try:
+        extract_path.write_text(extract(pdf_path), encoding="utf-8")
+    except Exception:  # noqa: BLE001 — PDF corrupto / ilegible
+        extract_path.write_text("", encoding="utf-8")
+
+    verify_errors = verify_ats(pdf_path, perfil)
     if verify_errors:
+        _mark_editado(pack_dir)
         raise SystemExit(
             "refresh: verify falló:\n" + "\n".join(f"  - {e}" for e in verify_errors)
         )
@@ -82,13 +95,10 @@ def refresh_pack(pack_dir: Path, base: Path | None = None) -> dict:
     jd_path = pack_dir / "jd.yaml"
     if jd_path.exists():
         jd = load_yaml(jd_path)
-        meta_path = pack_dir / "meta.yaml"
         forzar = False
-        if meta_path.exists():
-            # Conservar forzar del veredicto previo si existía
-            ver_prev = pack_dir / "veredicto.yaml"
-            if ver_prev.exists():
-                forzar = bool(load_yaml(ver_prev).get("forzar"))
+        ver_prev = pack_dir / "veredicto.yaml"
+        if ver_prev.exists():
+            forzar = bool(load_yaml(ver_prev).get("forzar"))
         gaps_new, veredicto = run_match(
             jd, cv=packed, base_dir=base, forzar=forzar
         )
@@ -102,12 +112,7 @@ def refresh_pack(pack_dir: Path, base: Path | None = None) -> dict:
 
     fc = run_factcheck(pack_dir, base)
     dump_yaml(pack_dir / "factcheck.yaml", fc)
-
-    meta_path = pack_dir / "meta.yaml"
-    meta = load_yaml(meta_path) if meta_path.exists() else {}
-    meta["pack_estado"] = "editado"
-    meta["listo_para_enviar"] = False
-    dump_yaml(meta_path, meta)
+    _mark_editado(pack_dir)
 
     return {
         "pack_estado": "editado",
@@ -119,7 +124,10 @@ def refresh_pack(pack_dir: Path, base: Path | None = None) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Re-empaqueta candidaturas/<slug>/ tras editar (HITL → editado)"
+        description=(
+            "Re-empaqueta candidaturas/<slug>/ tras editar "
+            "(pack→render→verify→match→respuestas→factcheck; HITL → editado)"
+        )
     )
     parser.add_argument("--dir", required=True, type=Path, help="Carpeta de la candidatura")
     parser.add_argument("--base", type=Path, help="Vault alternativo (tests)")
@@ -128,10 +136,11 @@ def main() -> int:
         print("refresh: --dir fuera del repo o tmp", file=sys.stderr)
         return 1
     result = refresh_pack(args.dir, args.base)
+    status = "ok" if result["factcheck_ok"] else "FAIL"
     print(
-        f"refresh: OK  pack_estado={result['pack_estado']}  "
+        f"refresh: DONE  pack_estado={result['pack_estado']}  "
         f"páginas={result.get('pages')}  "
-        f"factcheck={'ok' if result['factcheck_ok'] else 'FAIL'}"
+        f"factcheck={status}"
     )
     print(f"escrito {result['pdf']}")
     return 0 if result["factcheck_ok"] else 1

@@ -67,9 +67,9 @@ class FactcheckTests(unittest.TestCase):
             pack.mkdir()
             dump_yaml(pack / "cv.yaml", _cv())
             (pack / "presentacion.md").write_text(
-                "Acme publica un producto de facturación. "
-                "En Empresa A desarrollé interfaces con Angular y TypeScript. "
-                "Puedo hablar del stack el jueves.",
+                "Desarrollador web con Angular y TypeScript en Empresa A. "
+                "He construido interfaces ATS con HTML, CSS y SQL. "
+                "Puedo avanzar el stack del puesto esta misma semana.",
                 encoding="utf-8",
             )
             (pack / "outreach.md").write_text(
@@ -240,6 +240,45 @@ class FactcheckTests(unittest.TestCase):
             report = run_factcheck(pack, base)
             self.assertFalse(report["ok"])
             self.assertTrue(any(v["tipo"] == "tono" for v in report["violaciones"]))
+
+    def test_presentacion_abre_con_me_falta_falla(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base = write_vault(root)
+            pack = root / "pack"
+            pack.mkdir()
+            dump_yaml(pack / "cv.yaml", _cv())
+            (pack / "presentacion.md").write_text(
+                "Me falta experiencia formal en Kubernetes. "
+                "Sí Angular y TypeScript en Empresa A.",
+                encoding="utf-8",
+            )
+            report = run_factcheck(pack, base)
+            self.assertFalse(report["ok"])
+            self.assertTrue(any(v["tipo"] == "tono" for v in report["violaciones"]))
+
+    def test_respuesta_abre_con_no_tengo_falla(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base = write_vault(root)
+            pack = root / "pack"
+            pack.mkdir()
+            dump_yaml(pack / "cv.yaml", _cv())
+            (pack / "respuestas.md").write_text(
+                "## ¿Conoces DOORS?\n\n"
+                "No tengo experiencia con DOORS; sí Angular en Empresa A.\n\n"
+                "Caracteres: 55\n"
+                "Fuente: vault\n",
+                encoding="utf-8",
+            )
+            report = run_factcheck(pack, base)
+            self.assertFalse(report["ok"])
+            self.assertTrue(
+                any(
+                    v["tipo"] == "tono" and "respuestas.md" in v["dato"]
+                    for v in report["violaciones"]
+                )
+            )
 
 
 if __name__ == "__main__":

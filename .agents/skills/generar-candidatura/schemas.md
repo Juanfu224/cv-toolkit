@@ -70,6 +70,8 @@ certificaciones:
     entidad: string | null  # opcional
 ```
 
+En `render` / `refresh` / `pack` (con perfil): las certs del PDF salen del vault normalizado, no de un subset inventado en `cv.yaml`.
+
 ## pack_report.yaml
 
 Salida de `cvtool pack` (sin PII de contacto):

@@ -216,8 +216,9 @@ $CVTOOL factcheck --dir candidaturas/<slug> --base base \
   --out candidaturas/<slug>/factcheck.yaml
 ```
 
-Si sale `ok: false`, corrige el artefacto citado (sin inventar) y vuelve a factcheck. No copies a `cv/` con violaciones. Factcheck también rechaza clichés, bullets sin `evidencia_id` y `huerfanas` en `gaps.yaml`.
+Si sale `ok: false`, corrige el artefacto citado (sin inventar) y vuelve a factcheck. No copies a `cv/` con violaciones. Factcheck también rechaza clichés, bullets sin `evidencia_id`, `huerfanas` en `gaps.yaml`, certificaciones renderizadas como `None`, y presentación/respuestas que abran con «No tengo» / «Me falta» / «Carezco».
 
+Certificaciones del PDF: siempre las del vault (`base/perfil.yaml`, normalizadas a `nombre`); no subset por oferta.
 ## 12. HITL — no copies todavía
 
 En el chat, muestra: veredicto, `score_t1`, `factcheck.confianza`, violaciones (si hubo y se corrigieron), rutas PDF/DOCX, avisos `NECESITA_CONFIRMACION`. Gaps honestos solo en el chat / `entrevista.md`, no como lead de la carta.

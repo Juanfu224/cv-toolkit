@@ -301,9 +301,9 @@ def check_huerfanas(pack_dir: Path) -> list[dict]:
 
 
 NONE_CERT_RE = re.compile(
-    r"(?im)^##\s*Certificaciones\s*\n+(?:.*\bNone\b|None\s*·)"
+    r"(?im)^##\s*Certificaciones\s*\n+[^\n]*\bNone\b|(?:None\s*·|·\s*None)"
 )
-NO_TENGO_OPEN_RE = re.compile(r"(?is)^\s*No tengo\b")
+GAP_OPEN_RE = re.compile(r"(?is)^\s*(No tengo|Me falta|Carezco)\b")
 
 
 def check_certs_render(pack_dir: Path) -> list[dict]:
@@ -312,42 +312,64 @@ def check_certs_render(pack_dir: Path) -> list[dict]:
     if not path.exists():
         return []
     text = path.read_text(encoding="utf-8")
-    if NONE_CERT_RE.search(text) or re.search(
-        r"(?im)^##\s*Certificaciones\s*\n+\s*None\b", text
-    ):
+    if NONE_CERT_RE.search(text) or "None ·" in text or "· None" in text:
         return [
             {
                 "tipo": "certificacion",
                 "dato": "curriculum.md",
-                "detalle": "certificaciones renderizadas como None (usar nombre/titulo válido)",
-            }
-        ]
-    # También: literal "None ·" en cualquier parte del MD (caso clásico)
-    if "None ·" in text or "· None" in text:
-        return [
-            {
-                "tipo": "certificacion",
-                "dato": "curriculum.md",
-                "detalle": "aparece 'None' en la línea de certificaciones",
+                "detalle": "certificaciones renderizadas como None (usar nombre válido)",
             }
         ]
     return []
 
 
-def check_presentacion_tono(named: dict[str, str]) -> list[dict]:
-    """Presentación pública no debe abrir enfatizando ausencias."""
-    text = named.get("presentacion.md")
-    if text is None:
-        return []
-    if NO_TENGO_OPEN_RE.match(text):
-        return [
+def _opens_with_gap(text: str) -> bool:
+    return bool(GAP_OPEN_RE.match(text or ""))
+
+
+def _respuesta_bodies(respuestas_md: str) -> list[tuple[str, str]]:
+    """[(pregunta, cuerpo_respuesta), ...] desde plantilla respuestas.md.j2."""
+    out: list[tuple[str, str]] = []
+    parts = re.split(r"(?m)^##\s+", respuestas_md or "")
+    for part in parts[1:]:
+        lines = part.splitlines()
+        if not lines:
+            continue
+        pregunta = lines[0].strip()
+        rest = "\n".join(lines[1:]).strip()
+        if "Caracteres:" in rest:
+            cuerpo = rest.split("Caracteres:", 1)[0].strip()
+        else:
+            cuerpo = rest
+        out.append((pregunta, cuerpo))
+    return out
+
+
+def check_tono_publico(named: dict[str, str]) -> list[dict]:
+    """Presentación y respuestas no deben abrir enfatizando ausencias."""
+    viol: list[dict] = []
+    pres = named.get("presentacion.md")
+    if pres is not None and _opens_with_gap(pres):
+        viol.append(
             {
                 "tipo": "tono",
                 "dato": "presentacion.md",
-                "detalle": "abre con 'No tengo'; lead con fortalezas del candidato",
+                "detalle": "abre con ausencia (No tengo/Me falta/Carezco); lead con fortalezas",
             }
-        ]
-    return []
+        )
+    resp = named.get("respuestas.md")
+    if resp:
+        for pregunta, cuerpo in _respuesta_bodies(resp):
+            if _opens_with_gap(cuerpo):
+                label = pregunta[:60] if pregunta else "respuesta"
+                viol.append(
+                    {
+                        "tipo": "tono",
+                        "dato": f"respuestas.md:{label}",
+                        "detalle": "respuesta abre con ausencia; lead con evidencia positiva",
+                    }
+                )
+    return viol
 
 
 def load_vault(base: Path) -> dict[str, Any]:
@@ -378,7 +400,7 @@ def run_factcheck(pack_dir: Path, base: Path | None = None) -> dict:
     violaciones.extend(check_cliches(combined))
     violaciones.extend(check_huerfanas(pack_dir))
     violaciones.extend(check_certs_render(pack_dir))
-    violaciones.extend(check_presentacion_tono(named))
+    violaciones.extend(check_tono_publico(named))
 
     unique_metrics = {norm(m) for m in METRIC_RE.findall(combined or "") if norm(m)}
     tech_total = len([c for c in (cv.get("competencias") or []) if c]) if cv else 0

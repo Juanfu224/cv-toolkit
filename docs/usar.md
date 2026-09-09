@@ -117,7 +117,7 @@ Skills `epic-workflow` y `shield-security-gate` son para **desarrollar el kit**,
 .venv/bin/python scripts/cvtool.py tablero list
 ```
 
-Resto: `cvtool -h` (`scaffold`, `match`, `pack`, `ingest-jd` solo HTTPS público, `factcheck`, `validate-jd`, `render`, `copy`, `salary`, `respuestas`, `basename`, `init`, `test`, …).
+Resto: `cvtool -h` (`scaffold`, `match`, `pack`, `refresh`, `ingest-jd` solo HTTPS público, `factcheck`, `validate-jd`, `render`, `copy`, `salary`, `respuestas`, `basename`, `init`, `test`, …).
 
 Antes del match: `cvtool validate-jd path/jd.yaml`. Tras HITL: `cvtool match … --forzar`.
 
@@ -131,8 +131,8 @@ Antes del match: `cvtool validate-jd path/jd.yaml`. Tras HITL: `cvtool match …
 | PDF origen sin texto | Instala `pdftotext` o usa `curriculum.md` |
 | Vault vacío | CV en `base/origen/` → **inicializa mi base** |
 | `no_aplicar` | Lee `veredicto.yaml`; fuerza solo si aceptas el gap (`--forzar`) |
-| PDF > 1 página | `cvtool pack --cv … --out … --gaps …` y vuelve a `render`/`verify` |
-| `factcheck` no ok | Corrige métrica/tech/cliché/`evidencia_id`/`huerfanas`; no copies a `cv/` |
+| PDF > 1 página o tras editar el pack | `cvtool refresh --dir candidaturas/<slug>` (pack+render+verify+factcheck) |
+| `factcheck` no ok | Corrige métrica/tech/cliché/`evidencia_id`/`huerfanas`/tono/`None` en certs; no copies a `cv/` |
 | `copy` bloquea | Falta factcheck ok o `pack_estado: aprobado` en `meta.yaml` (HITL) |
 
 ## FAQ
@@ -145,6 +145,5 @@ Antes del match: `cvtool validate-jd path/jd.yaml`. Tras HITL: `cvtool match …
 
 **¿`no_aplicar`?** Lee gaps en `veredicto.yaml`. Solo `--forzar` si aceptas el riesgo.
 
-**¿PDF de más de una página?** Ejecuta `cvtool pack` sobre el `cv.yaml` de la candidatura (con `--gaps`) y luego `cvtool render` + `verify`. Solo acorta a mano si el núcleo ya no cabe.
-
+**¿PDF de más de una página o cambiaste el pack?** Preferible `cvtool refresh --dir candidaturas/<slug>`. Solo acorta a mano el núcleo si `pack` dice que ya no cabe.
 **¿Dónde está el historial?** `candidaturas/` + `tablero.yaml`.
